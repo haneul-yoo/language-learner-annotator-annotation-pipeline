@@ -9,8 +9,8 @@ from ast import literal_eval
 
 app = Flask(__name__)
 data_path = './data'
-output_path = '/Volumes/share/haneul/language_learner_annotation/annotation-output'
-# output_path = '/mnt/nas2/haneul/language_learner_annotation/annotation-output'
+# output_path = '/Volumes/share/haneul/language_learner_annotation/annotation-output'
+output_path = '/mnt/nas2/haneul/language_learner_annotation/annotation-output'
 context_count_per_user = 5
 user_count_per_context = 3
 secret_code = 'done_'
