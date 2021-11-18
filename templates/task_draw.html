@@ -4,7 +4,7 @@
     <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <div class="navbar-item">
-                Language Learner Annotation - Annotation Pipeline
+                <a href="/" class="has-text-white">Language Learner Annotation - Annotation Pipeline</a>
             </div>
         </div>
         <div class="navbar-menu">
@@ -15,6 +15,9 @@
             </div>
         </div>
     </nav>
+    <div v-if="!contexts || !contexts.length">
+        There are no more questions left in this langauge / task pair.<br/>Please select other options and try again.
+    </div>
     <div class="container v-large-padded h-padded">
         <div class="content">
             <template v-for="(context, i) of contexts" v-if="i === contextIndex" >
@@ -113,7 +116,15 @@
                                     </p>
                                 </div>
                                 <hr/>
-                                <button v-if="isHiddens[context.id] % 2" @click="updateTranslations(context.id)" class="button">Hide English translations</button>
+                                <div v-if="isTranslation == 'tran'">
+                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
+                                        <p>
+                                            <b>[[key]]</b>
+                                            [[value]]
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- <button v-if="isHiddens[context.id] % 2" @click="updateTranslations(context.id)" class="button">Hide English translations</button>
                                 <button v-else @click="updateTranslations(context.id)" class="button">Show English Translations</button>
                                 <div v-if="isHiddens[context.id] % 2">
                                     <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
@@ -122,7 +133,7 @@
                                             [[value]]
                                         </p>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="column">
                                 <h4>Question</h4>
@@ -147,7 +158,15 @@
                                     </p>
                                 </div>
                                 <hr/>
-                                <button v-if="isHiddens[context.id] % 2" v-on:click="updateTranslations(context.id)" class="button">Hide English translations</button>
+                                <div v-if="isTranslation == 'tran'">
+                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
+                                        <p>
+                                            <b>[[key]]</b>
+                                            [[value]]
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- <button v-if="isHiddens[context.id] % 2" v-on:click="updateTranslations(context.id)" class="button">Hide English translations</button>
                                 <button v-else v-on:click="updateTranslations(context.id)" class="button">Show English Translations</button>
                                 <div v-if="isHiddens[context.id] % 2">
                                     <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
@@ -156,7 +175,7 @@
                                             [[value]]
                                         </p>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="column">
                                 <h4>Question</h4>
@@ -216,7 +235,8 @@
     this.__contexts__ = loadValue('contexts') || {{ contexts | tojson | safe }};
     this.__questions__ = loadValue('questions') || {{ questions | tojson | safe }};
     this.__validate_texts__ = {{ validate_texts | tojson | safe }};
-    this.__workerId__ = loadValue('workerId') || '{{workerId}}'
+    this.__workerId__ = loadValue('workerId') || '{{ workerId }}';
+    this.__isTranslation__ = loadValue('isTranslation') || '{{ isTranslation }}';
     saveValue('uid', this.__uid__);
     saveValue('contexts', this.__contexts__);
     saveValue('questions', this.__questions__);
@@ -237,10 +257,12 @@
             // validatorValues: {},
             validateIndex: -1,
             validatorValue: -1,
+            isTranslation: this.__isTranslation__,
             isHiddens: {},
             start_time: Date.now(),
         },
         created() {
+            console.log('here', app.isTranslation);
             // this.candidateIds = this.shuffle(Object.keys(this.contexts[this.contextIndex].candidates));
             // this.validateIndexes = [Math.floor(this.contexts.length / 2), this.contexts.length - 1];
             // this.validateIndexes.forEach(i => {
@@ -262,10 +284,14 @@
                 // console.log(c);
                 // console.log(c.id);
                 // console.log(this.isHiddens);
-                Vue.set(this.isHiddens, c.id, 0);
+                // Vue.set(this.isHiddens, c.id, 0);
+                if (app.isTranslation == 'tran')
+                    Vue.set(this.isHiddens, c.id, 1);
+                else
+                    Vue.set(this.isHiddens, c.id, 0);
             })
-            console.log(this.isHiddens);
-            console.log(app.isHiddens);
+            // console.log(this.isHiddens);
+            // console.log(app.isHiddens);
         },
         mounted() {
             ['mouseup', 'touchend'].forEach(event => {

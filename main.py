@@ -9,8 +9,8 @@ from ast import literal_eval
 
 app = Flask(__name__)
 data_path = './data'
-# output_path = './output'
-output_path = '/mnt/nas2/haneul/language_learner_annotation/annotation-output'
+output_path = '/Volumes/share/haneul/language_learner_annotation/annotation-output'
+# output_path = '/mnt/nas2/haneul/language_learner_annotation/annotation-output'
 context_count_per_user = 5
 user_count_per_context = 3
 secret_code = 'done_'
@@ -101,14 +101,14 @@ def draw_question_ids_over_limit():
 
 def draw_context_dicts(language_task_set):
 
-    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-alpha/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
 
     header = json_url[0]
     
     questions = json_url[1:]
     random.shuffle(questions)
     questions_over_limit = draw_question_ids_over_limit()
-    questions = [q for q in questions if q[3] not in questions_over_limit and [q[2], q[0]] in language_task_set]
+    questions = [q for q in questions if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set]]
     questions = questions[:min(context_count_per_user, len(questions))]
 
     questions = [dict(zip(header, v)) for v in questions]
@@ -155,7 +155,7 @@ def save_response(res_output_path, context_id, user_id, response, isPassed, work
 
 
 def get_language_task_set():
-    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-alpha/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
     language_task_set = list(set((row[2], row[0]) for row in json_url[1:]))
     # language_task_set = list({v['language']:v for v in [{'language': row[2], 'task': row[0]} for row in json_url[1:]]}.values())
     return language_task_set
@@ -179,11 +179,13 @@ def task_draw():
     data = json.loads(request.data)
     workerId = data['workerId']
     language_task_set = data['language_task_set']
+    isTranslation = data['isTranslation']
     uid = generate_user_id()
     context_dicts = draw_context_dicts(language_task_set)
     questions = get_questions()
     validate_texts = get_validate_texts()
     return render_template('task_draw.html',
+        isTranslation=isTranslation,
         uid=uid,
         contexts=context_dicts,
         questions=questions,
@@ -203,7 +205,6 @@ def task_submit():
     end_time = data['end_time']
     translation = data['translation']
     # validatorValues = data['validatorValues']
-    print(translation)
     # if isPassed:
     #     res_output_path = output_path + "/response/"
     # else:
