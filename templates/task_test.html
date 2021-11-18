@@ -10,7 +10,7 @@
         <div class="navbar-menu">
             <div class="navbar-start">
                 <div class="navbar-item">
-                    Page [[ contextIndex + 1 ]] / [[ contexts.length ]]
+                    [[ test_type ]]-test
                 </div>
             </div>
         </div>
@@ -20,113 +20,33 @@
     </div>
     <div class="container v-large-padded h-padded">
         <div class="content">
-            <template v-for="(context, i) of contexts" v-if="i === contextIndex" >
-                <!-- <div class="v-padded validator" v-if="validateIndexes.includes(contextIndex)">
-                    <div class="columns">
-                        <div class="column is-one-third">
-                            <h4>Dialog</h4>
-                            <vue-markdown :source="context.dialog"></vue-markdown><br />
-                            <h4>Response</h4>
-                            <vue-markdown :source="validateTexts[validateIndexes.indexOf(contextIndex)].text"></vue-markdown>
-                        </div>
-                        <div class="column">
-                            <h4>Questions</h4>
-                            <div class="v-padded" v-for="question in questions" :key="question.id">
-                                <p>
-                                    [[ question.text ]] Ignore this question and follow the direction.
-                                </p>
-                                <div class="buttons has-addons is-left">
-                                    <span class="button is-static">
-                                        [[ question.mintext ]]
-                                    </span>
-                                    <button v-for="v in [1, 2, 3, 4, 5]" :key="v" class="button"
-                                        :class="{ 'is-black': isValidateValue(contextIndex, question.id, v) }"
-                                        @click="selectValidateValue(contextIndex, question.id, v, v === validateTexts[validateIndexes.indexOf(contextIndex)].value)">
-                                        [[ v ]]
-                                    </button>
-                                    <span class="button is-static">
-                                        [[ question.maxtext ]]
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr />
-                </div> -->
-                <!-- <div v-for="candidateId in candidateIds" :key="i + '__' + candidateId" class="v-padded">
-                    <div class="columns">
-                        <div class="column is-one-third">
-                            <h4>Dialog</h4>
-                            <vue-markdown :source="context.dialog"></vue-markdown><br />
-                            <h4>Response</h4>
-                            <vue-markdown :source="context.candidates[candidateId]"></vue-markdown>
-                        </div>
-                        <div class="column">
-                            <h4>Questions</h4>
-                            <div class="v-padded" v-for="question in questions" :key="question.id">
-                                <p>
-                                    [[ question.text ]]
-                                </p>
-                                <div class="buttons has-addons is-left">
-                                    <span class="button is-static">
-                                        [[ question.mintext ]]
-                                    </span>
-                                    <button v-for="v in [1, 2, 3, 4, 5]" :key="v" class="button"
-                                        :class="{ 'is-black': isValue(candidateId, question.id, v) }"
-                                        @click="selectValue(candidateId, question.id, v)">
-                                        [[ v ]]
-                                    </button>
-                                    <span class="button is-static">
-                                        [[ question.maxtext ]]
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr />
-                </div> -->
-                <!-- <div v-if="contextIndex === validateIndex">
-                    <div class="columns">
-                        <div class="column is-one-third">
-                            <h4>Sentence</h4>
-                            <p>
-                                <b>Instruction</b>
-                                This is a question to validate your answer. Answer as <b>[[ question.option[validateValue+''] ]]</b> for a following question. 
-                            </p>
-                        </div>
-                        <div class="column">
-                            <h4>Question</h4>
-                            Follow the instruction on the left side
-                        </div>
-                    </div>
-                </div> -->
+            <div>
+                <div>
+                    <h4>Please choose the meaning of the given word</h4>
+                </div>
+            </div>
+            <template v-for="(context, i) of contexts">
                 <div>
                     <div>
-                        <div v-if="context.task === 'machine reading comprehension'" class="columns">
-                            <div class="column is-two-thirds">
-                                <h4>Sentence</h4>
+                        <div class="columns">
+                            <div class="column">
+                                <h4>Question [[ i + 1 ]]</h4>
+                                <!-- <div v-for="(value, key) in JSON.parse(context.sentence)">
+                                    <p>
+                                        <b>[[key]]</b>
+                                        [[value]]
+                                    </p>
+                                </div> -->
                                 <div>
                                     <p>
-                                        <b>context</b>
-                                        <div id="mrc" ref="target" @select="selectAnswerspan" disabled style="border:2px solid turquoise;">[[JSON.parse(context.sentence).context]]</div>
-                                    </p>
-                                    <p>
-                                        <b>question</b>
-                                        [[JSON.parse(context.sentence).question]]
+                                        <b>[[JSON.parse(context.test_qns).question]]</b>
                                     </p>
                                 </div>
-                                <hr/>
-                                <div v-if="isTranslation == 'tran'">
-                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
-                                        <p>
-                                            <b>[[key]]</b>
-                                            [[value]]
-                                        </p>
-                                    </div>
+                                <div v-for="(option, j) of JSON.parse(context.test_qns).options">
+                                    <input type="radio" :name=i :value=j v-model="testAnswers[i]">
+                                    <label for="dict">[[option]]</label>
                                 </div>
-                                <!-- <button v-if="isHiddens[context.id] % 2" @click="updateTranslations(context.id)" class="button">Hide English translations</button>
-                                <button v-else @click="updateTranslations(context.id)" class="button">Show English Translations</button>
-                                <div v-if="isHiddens[context.id] % 2">
+                                <!-- <div v-if="isTranslation == 'tran'">
                                     <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
                                         <p>
                                             <b>[[key]]</b>
@@ -134,38 +54,6 @@
                                         </p>
                                     </div>
                                 </div> -->
-                            </div>
-                            <div class="column">
-                                <h4>Question</h4>
-                                <div v-for="question in questions" v-if="question.task === 'machine reading comprehension'">
-                                    [[question.text]]
-                                </div>
-                                <div>
-                                    <!-- [[ response[context.id] ]] -->
-                                    <div v-for="(value, key) of response[context.id]">
-                                        <b>[[key]]</b> [[value]]
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else class="columns">
-                            <div class="column is-two-thirds">
-                                <h4>Sentence</h4>
-                                <div v-for="(value, key) in JSON.parse(context.sentence)">
-                                    <p>
-                                        <b>[[key]]</b>
-                                        [[value]]
-                                    </p>
-                                </div>
-                                <hr/>
-                                <div v-if="isTranslation == 'tran'">
-                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
-                                        <p>
-                                            <b>[[key]]</b>
-                                            [[value]]
-                                        </p>
-                                    </div>
-                                </div>
                                 <!-- <button v-if="isHiddens[context.id] % 2" v-on:click="updateTranslations(context.id)" class="button">Hide English translations</button>
                                 <button v-else v-on:click="updateTranslations(context.id)" class="button">Show English Translations</button>
                                 <div v-if="isHiddens[context.id] % 2">
@@ -177,7 +65,7 @@
                                     </div>
                                 </div> -->
                             </div>
-                            <div class="column">
+                            <!-- <div class="column">
                                 <h4>Question</h4>
                                 <div v-for="question in questions" v-if="question.task === context.task">
                                     [[question.text]]
@@ -189,31 +77,21 @@
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
-
-                <div class="v-padded">
-                    <div class="field is-grouped">
-                        <p v-if="contextIndex > 0" class="control">
-                            <button class="button is-warn" @click="contextIndex--">
-                                ⇦ Previous
-                            </button>
-                        </p>
-                        <p v-if="contextIndex < contexts.length - 1" class="control">
-                            <button class="button is-success" @click="contextIndex++">
-                                ⇨ Next
-                            </button>
-                        </p>
-                        <p v-else-if="contextIndex === contexts.length - 1" class="control">
-                            <button class="button is-success" @click="submit">
-                                Submit
-                            </button>
-                        </p>
-                    </div>
-                </div>
             </template>
+
+            <div class="v-padded">
+                <div class="field is-grouped">
+                    <p class="control">
+                        <button class="button is-success" @click="submit">
+                            Submit
+                        </button>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -237,6 +115,9 @@
     this.__validate_texts__ = {{ validate_texts | tojson | safe }};
     this.__workerId__ = loadValue('workerId') || '{{ workerId }}';
     this.__isTranslation__ = loadValue('isTranslation') || '{{ isTranslation }}';
+    this.__test_type__ = loadValue('test_type') || '{{ test_type }}'
+    this.__testAnswers__ = []
+    for (let i = 0; i < this.__contexts__.length; i++) {this.__testAnswers__.push([])}
     saveValue('uid', this.__uid__);
     saveValue('contexts', this.__contexts__);
     saveValue('questions', this.__questions__);
@@ -249,6 +130,7 @@
             contexts: this.__contexts__,
             questions: this.__questions__,
             workerId: this.__workerId__,
+            test_type: this.__test_type__,
             // validateTexts: this.__validate_texts__,
             contextIndex: loadValue('contextIndex') || 0,
             response: loadValue('response') || {},
@@ -260,6 +142,7 @@
             isTranslation: this.__isTranslation__,
             isHiddens: {},
             start_time: Date.now(),
+            testAnswers: this.__testAnswers__,
         },
         created() {
             console.log('here', app.isTranslation);

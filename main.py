@@ -112,6 +112,8 @@ def draw_context_dicts(language_task_set):
     questions = questions[:min(context_count_per_user, len(questions))]
 
     questions = [dict(zip(header, v)) for v in questions]
+    for question in questions:
+        question['test_qns'] = json.dumps(random.choice(json.loads(question['test_qns'])))
 
     return questions
 
@@ -173,6 +175,26 @@ def task_index():
         language_task_set=language_task_set)
     return render_template('task_index.html')
 
+
+@app.route('/tasks/test', methods=['POST'])
+def task_test():
+    data = json.loads(request.data)
+    workerId = data['workerId']
+    language_task_set = data['language_task_set']
+    isTranslation = data['isTranslation']
+    test_type = data['test_type']
+    uid = generate_user_id()
+    context_dicts = draw_context_dicts(language_task_set)
+    questions = get_questions()
+    validate_texts = get_validate_texts()
+    return render_template('task_test.html',
+        test_type=test_type,
+        isTranslation=isTranslation,
+        uid=uid,
+        contexts=context_dicts,
+        questions=questions,
+        validate_texts=validate_texts,
+        workerId=workerId)
 
 @app.route('/tasks/draw', methods=['POST'])
 def task_draw():
