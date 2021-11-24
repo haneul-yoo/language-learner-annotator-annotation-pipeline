@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
-<div id="task-view">
+<div id="test-view">
     <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <div class="navbar-item">
@@ -123,7 +123,7 @@
     saveValue('questions', this.__questions__);
     Vue.use(VueMarkdown);
     var app = new Vue({
-        el: '#task-view',
+        el: '#test-view',
         delimiters: ['[[', ']]'],
         data: {
             uid: this.__uid__,
@@ -131,7 +131,7 @@
             questions: this.__questions__,
             workerId: this.__workerId__,
             test_type: this.__test_type__,
-            // validateTexts: this.__validate_texts__,
+            validateTexts: this.__validate_texts__,
             contextIndex: loadValue('contextIndex') || 0,
             response: loadValue('response') || {},
             // candidateIds: [],
@@ -330,34 +330,49 @@
                 // //}
                 // // Submit with AJAX call.
                 isPassed = true;
+                test_type = this.test_type;
                 console.log(this.isHiddens);
-                axios.post('/tasks/submit', {
+                resetValues = this.resetValues
+                axios.post('/tasks/testSubmit', {
                     context: this.contexts,
-                    response: this.response,
+                    response: this.testAnswers,
                     isPassed: isPassed,
                     uid: this.uid,
                     workerId: this.workerId,
                     start_time: this.start_time,
                     end_time: Date.now(),
-                    translation: this.isHiddens
+                    questions: this.questions,
+                    translation: this.isHiddens,
+                    testAnswers: this.testAnswers,
+                    testType: this.test_type,
+                    validateTexts: this.validateTexts,
+                    isTranslation: this.isTranslation,
                     // validatorValues: this.validatorValues
-                }).then(response => {
-                    const data = response.data;
-                    const succeed = data.startsWith('done:');
-                    if (succeed) {
-                        const code = data.split(':')[1];
-                        //window.location.href = '/tasks/done?code=' + encodeURI(code);
-                        if (isPassed) {
-                            window.location.href = '/tasks/done?code=' + encodeURI(code);
+                }).then(function(response) {
+                    console.log("test_type: ", test_type)
+                    if(test_type == 'pre'){
+                        document.open()
+                        document.write(response.data);
+                    }
+                    else{
+                        const data = response.data;
+                        const succeed = data.startsWith('done:');
+                        if (succeed) {
+                            const code = data.split(':')[1];
+                            //window.location.href = '/tasks/done?code=' + encodeURI(code);
+                            if (isPassed) {
+                                window.location.href = '/tasks/done?code=' + encodeURI(code);
+                            } else {
+                                window.location.href = '/tasks/done?code=pass_' + encodeURI(code);
+                            }
+                            resetValues();
                         } else {
-                            window.location.href = '/tasks/done?code=pass_' + encodeURI(code);
+                            alert('Error from server on submit: ' + response);
                         }
-                        this.resetValues();
-                    } else {
-                        alert('Error from server on submit: ' + response);
                     }
                 }).catch(function (error) {
-                    alert('Error occurred on submit: ' + error);
+                    alert('Error occurred on draw: ' + error);
+                    console.log(error);
                 });
             },
         },

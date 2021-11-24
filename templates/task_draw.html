@@ -446,6 +446,23 @@
                 // //    return;
                 // //}
                 // // Submit with AJAX call.
+
+                axios.post('/tasks/test', {
+                    test_type: 'post',
+                    isTranslation: this.isTranslation,
+                    workerId: this.workerId,
+                    uid: this.uid,
+                    context_dicts: this.contexts,
+                    questions: this.questions
+                }).then(function(response) {
+                    document.open()
+                    document.write(response.data);
+                }).catch(function (error) {
+                    alert('Error occurred on draw: ' + error);
+                    console.log(error);
+                });
+
+
                 isPassed = true;
                 console.log(this.isHiddens);
                 axios.post('/tasks/submit', {
@@ -462,13 +479,13 @@
                     const data = response.data;
                     const succeed = data.startsWith('done:');
                     if (succeed) {
-                        const code = data.split(':')[1];
-                        //window.location.href = '/tasks/done?code=' + encodeURI(code);
-                        if (isPassed) {
-                            window.location.href = '/tasks/done?code=' + encodeURI(code);
-                        } else {
-                            window.location.href = '/tasks/done?code=pass_' + encodeURI(code);
-                        }
+                        // const code = data.split(':')[1];
+                        // //window.location.href = '/tasks/done?code=' + encodeURI(code);
+                        // if (isPassed) {
+                        //     window.location.href = '/tasks/done?code=' + encodeURI(code);
+                        // } else {
+                        //     window.location.href = '/tasks/done?code=pass_' + encodeURI(code);
+                        // }
                         this.resetValues();
                     } else {
                         alert('Error from server on submit: ' + response);

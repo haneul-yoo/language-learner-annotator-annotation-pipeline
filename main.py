@@ -10,7 +10,7 @@ from ast import literal_eval
 app = Flask(__name__)
 data_path = './data'
 # output_path = '/Volumes/share/haneul/language_learner_annotation/annotation-output'
-output_path = '/mnt/nas2/haneul/language_learner_annotation/annotation-output'
+output_path = './results'
 context_count_per_user = 5
 user_count_per_context = 3
 secret_code = 'done_'
@@ -137,6 +137,25 @@ def generate_user_id():
     return uid
 
 
+def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation):
+    if isPassed:
+        file_path = '%s/%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
+    else:
+        file_path = '%s/no_pass__%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
+    data = {
+        'context_id': context_id,
+        'user_id': user_id,
+        'response': response,
+        'worker_id': workerId,
+        'start_time': start_time,
+        'end_time': end_time,
+        'translation': translation
+    }
+    with open(file_path, 'w') as f:
+        # f.write(json.dumps(response))
+        f.write(json.dumps(data, ensure_ascii=False, indent=4))
+
+
 def save_response(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, translation):
     if isPassed:
         file_path = '%s/%s__res__%s__%s.json' % (res_output_path, context_id, user_id, workerId)
@@ -179,14 +198,22 @@ def task_index():
 @app.route('/tasks/test', methods=['POST'])
 def task_test():
     data = json.loads(request.data)
-    workerId = data['workerId']
-    language_task_set = data['language_task_set']
-    isTranslation = data['isTranslation']
     test_type = data['test_type']
-    uid = generate_user_id()
-    context_dicts = draw_context_dicts(language_task_set)
-    questions = get_questions()
-    validate_texts = get_validate_texts()
+    if (test_type == 'pre'):
+        workerId = data['workerId']
+        language_task_set = data['language_task_set']
+        isTranslation = data['isTranslation']
+        uid = generate_user_id()
+        context_dicts = draw_context_dicts(language_task_set)
+        questions = get_questions()
+        validate_texts = get_validate_texts()
+    else:
+        workerId = data['workerId']
+        isTranslation = data['isTranslation']
+        uid = data['uid']
+        context_dicts = data['context_dicts']
+        questions = data['questions']
+        validate_texts = 'asssssss'
     return render_template('task_test.html',
         test_type=test_type,
         isTranslation=isTranslation,
@@ -213,6 +240,37 @@ def task_draw():
         questions=questions,
         validate_texts=validate_texts,
         workerId=workerId)
+
+@app.route('/tasks/testSubmit', methods=['POST'])
+def test_submit():
+    data = json.loads(request.data)
+    context = data['context']
+    response = data['response']
+    user_id = data['uid']
+    isPassed = data['isPassed']
+    workerId = data['workerId']
+    start_time = data['start_time']
+    end_time = data['end_time']
+    translation = data['translation']
+    questions = data['questions']
+    isTranslation = data['isTranslation']
+    validate_texts = data['validateTexts']
+    test_type = data['testType']
+
+    for context_dict in context:
+        r = response
+        res_output_path = output_path + "/response/" if r else output_path + "/no_response/"
+        save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']])
+    if test_type == 'pre':
+        return render_template('task_draw.html',
+            isTranslation=isTranslation,
+            uid=user_id,
+            contexts=context,
+            questions=questions,
+            validate_texts=validate_texts,
+            workerId=workerId)
+    else:
+        return 'done:%s' % (secret_code + user_id)
 
 
 @app.route('/tasks/submit', methods=['POST'])
