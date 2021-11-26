@@ -116,7 +116,6 @@ def draw_context_dicts(language_task_set, workerId):
     random.shuffle(questions)
     questions_over_limit = draw_question_ids_over_limit()
     responses = [x.name.split('__res__')[0] for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json')) if workerId in x.name]
-    print(responses)
     questions = [q for q in questions if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set] and q[3] not in responses]
     questions = questions[:min(context_count_per_user, len(questions))]
 
