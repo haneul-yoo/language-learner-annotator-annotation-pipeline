@@ -317,4 +317,4 @@ def task_done():
 
 init_paths()
 if __name__ == '__main__':
-    app.run(debug=True, port=50818)
+    app.run(debug=True)
