@@ -6,11 +6,13 @@ import requests
 from collections import Counter
 from flask import Flask, redirect, request, render_template
 from ast import literal_eval
+from pathlib import Path
 
 app = Flask(__name__)
 data_path = './data'
-# output_path = '/Volumes/share/haneul/language_learner_annotation/annotation-output'
-output_path = './results'
+output_path = '/mnt/nas2/haneul/language_learner_annotation'
+# output_path = '/Volumes/share/haneul/language_learner_annotation'
+# output_path = './output'
 context_count_per_user = 5
 user_count_per_context = 3
 secret_code = 'done_'
@@ -19,9 +21,13 @@ secret_code = 'done_'
 def init_paths():
     paths = [
         '%s/contexts' % data_path,
-        '%s/response' % output_path,
-        '%s/no_response' % output_path,
+        '%s' %output_path,
+        '%s/annotation-output' %output_path,
+        '%s/annotation-output/response' % output_path,
+        '%s/annotation-output/no_response' % output_path,
         '%s/user_ids' % output_path,
+        '%s/pretest-output' %output_path,
+        '%s/posttest-output' %output_path
     ]
     for path in paths:
         if not os.path.exists(path):
@@ -39,7 +45,7 @@ def get_all_context_ids():
 
 def get_context_response_count_dict():
     context_ids = get_all_context_ids()
-    response_filenames = os.listdir('%s/response' % output_path)
+    response_filenames = os.listdir('%s/annotation-output/response' % output_path)
     counter = {cid: 0 for cid in context_ids}
     for filename in response_filenames:
         if '__res__' not in filename:
@@ -93,13 +99,14 @@ def get_validate_texts():
     return validate_texts
 
 def draw_question_ids_over_limit():
-    response_filenames = os.listdir('%s/response' % output_path)
-    response_ids = [x.split('__res__')[0].split('/')[-1] for x in response_filenames]
+    # response_filenames = os.listdir('%s/response' % output_path)
+    # response_ids = [x.split('__res__')[0].split('/')[-1] for x in response_filenames]
+    response_ids = [x.name for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json'))]
     response_counter = Counter(response_ids)
     return [k for k, v in response_counter.items() if v >= user_count_per_context]
 
 
-def draw_context_dicts(language_task_set):
+def draw_context_dicts(language_task_set, workerId):
 
     json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-alpha/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
 
@@ -108,7 +115,8 @@ def draw_context_dicts(language_task_set):
     questions = json_url[1:]
     random.shuffle(questions)
     questions_over_limit = draw_question_ids_over_limit()
-    questions = [q for q in questions if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set]]
+    responses = [x.name.split('__res__')[0] for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json')) if workerId in x.name]
+    questions = [q for q in questions if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set] and q[3] not in responses]
     questions = questions[:min(context_count_per_user, len(questions))]
 
     questions = [dict(zip(header, v)) for v in questions]
@@ -208,7 +216,7 @@ def task_test():
         language_task_set = data['language_task_set']
         isTranslation = data['isTranslation']
         uid = generate_user_id()
-        context_dicts = draw_context_dicts(language_task_set)
+        context_dicts = draw_context_dicts(language_task_set, workerId)
         questions = get_questions()
         validate_texts = get_validate_texts()
     else:
@@ -234,7 +242,7 @@ def task_draw():
     language_task_set = data['language_task_set']
     isTranslation = data['isTranslation']
     uid = generate_user_id()
-    context_dicts = draw_context_dicts(language_task_set)
+    # context_dicts = draw_context_dicts(language_task_set, workerId)
     questions = get_questions()
     validate_texts = get_validate_texts()
     return render_template('task_draw.html',
@@ -264,8 +272,9 @@ def test_submit():
     # for context_dict in context:
     context_dict = context[0]
     r = response
-    res_output_path = output_path + "/response/" if r else output_path + "/no_response/"
+    res_output_path = output_path + "/" + test_type + "test-output/" if r else output_path + "/" + test_type + "test-output/"
     save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context)
+    
     if test_type == 'pre':
         return render_template('task_draw.html',
             isTranslation=isTranslation,
@@ -299,7 +308,7 @@ def task_submit():
     # for context_id, value in response.items():
     for context_dict in context:
         r = response[context_dict['id']] if context_dict['id'] in response else None
-        res_output_path = output_path + "/response/" if r else output_path + "/no_response/"
+        res_output_path = output_path + "/annotation-output/response/" if r else output_path + "/annotation-output/no_response/"
         save_response(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, translation[context_dict['id']])
 
     return 'done:%s' % (secret_code + user_id)

@@ -7,13 +7,28 @@
                 <a href="/" class="has-text-white">Language Learner Annotation - Annotation Pipeline</a>
             </div>
         </div>
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                <div class="navbar-item">
+                    Page [[ pageIndex + 1 ]] / 2
+                </div>
+            </div>
+        </div>
     </nav>
     <div class="container">
-        <div class="content v-large-padded">
+        <div v-if="pageIndex === 0" class="content v-large-padded">
+            <div>
+                <!-- <h4>Introduction</h4> -->
+                <iframe id="pdf" src="https://docs.google.com/document/d/e/2PACX-1vQ-CjpuJdtYUt9xL-DycIXjejTmW0iVw9myJ7ssb8tcKJsZS7_O3h1CK_db2JBQORCiDmWqqNpEv3qJ/pub?embedded=true"></iframe>
+                <!-- <div>
+                    <div id="adobe-dc-view" id="pdf"></div>
+                </div> -->
+            </div>
+        </div>
+        <div v-else-if="pageIndex === 1" class="content v-large-padded">
             <div>
                 <h4>Annotation Manual</h4>
-                Please read the instruction file carefully. <br />
-                We encourage you to download this instruction file for the following task.
+                <!-- Please read the instruction file carefully. -->
                 <iframe id="pdf" src="https://docs.google.com/document/d/e/2PACX-1vQoofTf217iF6UogXzJrJhVbOGA8QPz2vefgSmwy41bYGHr75IcAzEPDwTPpIvF0NTPbjbZ11JNAEY7/pub?embedded=true"></iframe>
                 <!-- <div>
                     <div id="adobe-dc-view" id="pdf"></div>
@@ -58,9 +73,28 @@
                     as honor code. <br />
                 </div>
                 <br />
-                <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true, 'is-loading':buttonClicked}">
+                <!-- <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true, 'is-loading':buttonClicked}">
                     Continue
-                </button>
+                </button> -->
+            </div>
+        </div>
+        <div class="v-padded">
+            <div class="field is-grouped">
+                <p v-if="pageIndex > 0" class="control">
+                    <button class="button is-warn" @click="pageIndex--">
+                        ⇦ Previous
+                    </button>
+                </p>
+                <p v-if="pageIndex === 0" class="control">
+                    <button class="button is-success" @click="pageIndex++">
+                        ⇨ Next
+                    </button>
+                </p>
+                <p v-else-if="pageIndex === 1" class="control">
+                    <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true, 'is-loading':buttonClicked}">
+                        Continue
+                    </button>
+                </p>
             </div>
         </div>
     </div>    
@@ -93,6 +127,7 @@
             workerId: '',
             checkedSets: [],
             isTranslation: [],
+            pageIndex: 0,
         },
         methods: {
             submit() {
@@ -129,6 +164,16 @@
                 //     alert('Error occurred on draw: ' + error);
                 //     console.log(error);
                 // });
+            },
+        },
+        watch: {
+            pageIndex() {
+                // this.candidateIds = this.shuffle(Object.keys(this.contexts[this.contextIndex].candidates));
+                saveValue('pageIndex', this.pageIndex);
+                this.$nextTick(() => {
+                    document.body.scrollTop = 0; // For Safari
+                    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                });
             },
         }
     })
