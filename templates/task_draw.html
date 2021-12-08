@@ -139,11 +139,22 @@
                                 <h4>Question</h4>
                                 <div v-for="question in questions" v-if="question.task === 'machine reading comprehension'">
                                     [[question.text]]
-                                </div>
-                                <div>
                                     <!-- [[ response[context.id] ]] -->
-                                    <div v-for="(value, key) of response[context.id]">
-                                        <b>[[key]]</b> [[value]]
+                                    <!-- <div v-if="response[context.id]['answerstart'] && !response[context.id]['answerspan']" v-for="(value, key) of response[context.id]">
+                                        <b>[[key]]</b> I don't know
+                                    </div>
+                                    <div v-else v-for="(value, key) of response[context.id]">
+                                        <b>[[key]]</b>[[value]]
+                                    </div> -->
+                                    <div v-if="context.id in response && response[context.id]['answerstart'] && !response[context.id]['answerspan']">
+                                        <div v-for="(value, key) of response[context.id]">
+                                            <b>[[key]]</b> I don't know
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        <div v-for="(value, key) of response[context.id]">
+                                            <b>[[key]]</b>[[value]]
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -181,7 +192,8 @@
                                 <h4>Question</h4>
                                 <div v-for="question in questions" v-if="question.task === context.task">
                                     [[question.text]]
-                                    <div>
+                                    <div class="buttons has-addons">
+                                        <button :key="-1" class="button" :class="{ 'is-black': isValue(-1) }" @click="selectValue(-1)">I don't know</button>
                                         <button v-for="v in Object.keys(question.option)" :key="v" class="button"
                                         :class="{ 'is-black': isValue(v) }"
                                         @click="selectValue(v)">
@@ -407,7 +419,7 @@
             },
             submit() {
                 // Validate the response.
-                // let isValid = true;
+                let isValid = true;
                 // let isPassed = true;
                 // console.log('vv', this.validatorValues);
                 // Object.keys(this.validatorValues).forEach(r => {
@@ -420,26 +432,26 @@
                 //         }
                 //     });
                 // });
-                // this.contexts.forEach(context => {
-                //     if (!this.response[context.id]) {
-                //         isValid = false;
-                //     }
-                //     try {
-                //         Object.values(this.response[context.id]).forEach(cvalue => {
-                //             Object.values(cvalue).forEach(qvalue => {
-                //                 if (qvalue === null) {
-                //                     isValid = false;
-                //                 }
-                //             })
-                //         });
-                //     } catch (err) {
-                //         isValid = false;
-                //     }
-                // })
-                // if (!isValid) {
-                //     alert('You have to answer to all questions.');
-                //     return;
-                // }
+                this.contexts.forEach(context => {
+                    if (!this.response[context.id]) {
+                        isValid = false;
+                    }
+                    try {
+                        Object.values(this.response[context.id]).forEach(cvalue => {
+                            Object.values(cvalue).forEach(qvalue => {
+                                if (qvalue === null) {
+                                    isValid = false;
+                                }
+                            })
+                        });
+                    } catch (err) {
+                        isValid = false;
+                    }
+                })
+                if (!isValid) {
+                    alert('You have to answer to all questions.');
+                    return;
+                }
                 // //if (!isPassed) {
                 //     // Failed to pass the validity check.
                 // //    window.location.href = '/tasks/done?code=' + encodeURI('pass_no_132v82389a823l3133id112');
