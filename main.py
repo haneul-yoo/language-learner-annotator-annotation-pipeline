@@ -315,7 +315,7 @@ def task_submit():
         r = response[context_dict['id']] if context_dict['id'] in response else None
         json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-beta/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
         language_task_set = list(set((row[2], row[0]) for row in json_url[1:]))
-        gt = [row[3] for row in json_url[1:] if row[2] == context_dict['id']]
+        gt = [row[4] for row in json_url[1:] if row[3] == context_dict['id']]
         gt = gt[0] if gt else None
         res_output_path = output_path + "/annotation-output/response/" if r else output_path + "/annotation-output/no_response/"
         save_response(res_output_path, context_dict['id'], user_id, r, gt, isPassed, workerId, start_time, end_time, translation[context_dict['id']])
