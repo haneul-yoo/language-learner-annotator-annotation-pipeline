@@ -121,7 +121,12 @@ def draw_context_dicts(language_task_set, workerId):
 
     questions = [dict(zip(header, v)) for v in questions]
     for question in questions:
-        question['test_qns'] = json.dumps(random.choice(json.loads(question['test_qns'])))
+        print(question['test_qns'])
+        test_qns = json.loads(question['test_qns'])
+        test_qns_generated = json.loads(question['test_qns_generated'])
+        random_index = random.randint(0, len(test_qns_generated) - 1)
+        question['test_qns_generated'] = json.dumps(test_qns_generated[random_index])
+        question['test_qns'] = json.dumps(test_qns[0])
 
     return questions
 
@@ -145,11 +150,13 @@ def generate_user_id():
     return uid
 
 
-def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation):
+def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation, context):
     if isPassed:
         file_path = '%s/%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
     else:
         file_path = '%s/no_pass__%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
+    qns = [x['test_qns'] for x in context]
+    qns_generated = [x['test_qns_generated'] for x in context]
     data = {
         'context_id': context_id,
         'user_id': user_id,
@@ -157,9 +164,11 @@ def save_test(res_output_path, context_id, user_id, response, isPassed, workerId
         'worker_id': workerId,
         'start_time': start_time,
         'end_time': end_time,
-        'translation': translation
+        'translation': translation,
+        'qns': qns,
+        'qns_generated': qns_generated,
     }
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         # f.write(json.dumps(response))
         f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
@@ -266,10 +275,12 @@ def test_submit():
     validate_texts = data['validateTexts']
     test_type = data['testType']
 
-    for context_dict in context:
-        r = response
-        res_output_path = output_path + "/" + test_type + "test-output/" if r else output_path + "/" + test_type + "test-output/"
-        save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']])
+    # for context_dict in context:
+    context_dict = context[0]
+    r = response
+    res_output_path = output_path + "/" + test_type + "test-output/" if r else output_path + "/" + test_type + "test-output/"
+    save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context)
+    
     if test_type == 'pre':
         return render_template('task_draw.html',
             isTranslation=isTranslation,
