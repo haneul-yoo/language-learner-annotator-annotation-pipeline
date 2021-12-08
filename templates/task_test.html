@@ -106,7 +106,7 @@
                                     </p>
                                 </div>
                                 <div v-for="(option, j) of JSON.parse(context.test_qns_generated).options">
-                                    <input type="radio" :name=i :value=j v-model="testAnswers[i]">
+                                    <input type="radio" :name=i :value=j v-model="testAnswers[i+5]">
                                     <label for="dict">[[option]]</label>
                                 </div>
                                 <!-- <div v-if="isTranslation == 'tran'">
@@ -180,7 +180,7 @@
     this.__isTranslation__ = loadValue('isTranslation') || '{{ isTranslation }}';
     this.__test_type__ = loadValue('test_type') || '{{ test_type }}'
     this.__testAnswers__ = []
-    for (let i = 0; i < this.__contexts__.length; i++) {this.__testAnswers__.push([])}
+    for (let i = 0; i < this.__contexts__.length * 2; i++) {this.__testAnswers__.push([])}
     saveValue('uid', this.__uid__);
     saveValue('contexts', this.__contexts__);
     saveValue('questions', this.__questions__);
