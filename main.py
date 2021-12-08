@@ -122,8 +122,10 @@ def draw_context_dicts(language_task_set, workerId):
     questions = [dict(zip(header, v)) for v in questions]
     for question in questions:
         test_qns = json.loads(question['test_qns'])
-        random_index = random.randint(0, len(test_qns) - 1)
-        question['test_qns'] = json.dumps(test_qns[random_index])
+        test_qns_generated = json.loads(question['test_qns_generated'])
+        random_index = random.randint(0, len(test_qns_generated) - 1)
+        question['test_qns_generated'] = json.dumps(test_qns_generated[random_index])
+        question['test_qns'] = json.dumps(test_qns[0])
 
     return questions
 
@@ -153,6 +155,7 @@ def save_test(res_output_path, context_id, user_id, response, isPassed, workerId
     else:
         file_path = '%s/no_pass__%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
     qns = [x['test_qns'] for x in context]
+    qns_generated = [x['test_qns_generated'] for x in context]
     data = {
         'context_id': context_id,
         'user_id': user_id,
@@ -162,6 +165,7 @@ def save_test(res_output_path, context_id, user_id, response, isPassed, workerId
         'end_time': end_time,
         'translation': translation,
         'qns': qns,
+        'qns_generated': qns_generated,
     }
     with open(file_path, 'w', encoding='utf-8') as f:
         # f.write(json.dumps(response))

@@ -22,7 +22,7 @@
         <div class="content">
             <div>
                 <div>
-                    <h4>Please choose the meaning of the given word</h4>
+                    <h4>Please answer the given questions.</h4>
                 </div>
             </div>
             <template v-for="(context, i) of contexts">
@@ -43,6 +43,64 @@
                                     </p>
                                 </div>
                                 <div v-for="(option, j) of JSON.parse(context.test_qns).options">
+                                    <input type="radio" :name=i :value=j v-model="testAnswers[i]">
+                                    <label for="dict">[[option]]</label>
+                                </div>
+                                <!-- <div v-if="isTranslation == 'tran'">
+                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
+                                        <p>
+                                            <b>[[key]]</b>
+                                            [[value]]
+                                        </p>
+                                    </div>
+                                </div> -->
+                                <!-- <button v-if="isHiddens[context.id] % 2" v-on:click="updateTranslations(context.id)" class="button">Hide English translations</button>
+                                <button v-else v-on:click="updateTranslations(context.id)" class="button">Show English Translations</button>
+                                <div v-if="isHiddens[context.id] % 2">
+                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
+                                        <p>
+                                            <b>[[key]]</b>
+                                            [[value]]
+                                        </p>
+                                    </div>
+                                </div> -->
+                            </div>
+                            <!-- <div class="column">
+                                <h4>Question</h4>
+                                <div v-for="question in questions" v-if="question.task === context.task">
+                                    [[question.text]]
+                                    <div>
+                                        <button v-for="v in Object.keys(question.option)" :key="v" class="button"
+                                        :class="{ 'is-black': isValue(v) }"
+                                        @click="selectValue(v)">
+                                        [[ question.option[v+''] ]]
+                                        </button>
+                                    </div>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template v-for="(context, i) of contexts">
+                <div>
+                    <div>
+                        <div class="columns">
+                            <div class="column">
+                                <h4>Question [[ i + 6 ]]</h4>
+                                <!-- <div v-for="(value, key) in JSON.parse(context.sentence)">
+                                    <p>
+                                        <b>[[key]]</b>
+                                        [[value]]
+                                    </p>
+                                </div> -->
+                                <div>
+                                    <p>
+                                        <b>[[JSON.parse(context.test_qns_generated).question]]</b>
+                                    </p>
+                                </div>
+                                <div v-for="(option, j) of JSON.parse(context.test_qns_generated).options">
                                     <input type="radio" :name=i :value=j v-model="testAnswers[i]">
                                     <label for="dict">[[option]]</label>
                                 </div>
