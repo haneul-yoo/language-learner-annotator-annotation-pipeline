@@ -107,11 +107,11 @@
                                     </p>
                                 </div>
                                 <div>
-                                    <input type="radio" :name=i :value=-1 v-model="testAnswers[i]">
+                                    <input type="radio" :name=i+5 :value=-1 v-model="testAnswers[i+5]">
                                     <label for="dict">I don't know</label>
                                 </div>
                                 <div v-for="(option, j) of JSON.parse(context.test_qns_generated).options">
-                                    <input type="radio" :name=i :value=j v-model="testAnswers[i+5]">
+                                    <input type="radio" :name=i+5 :value=j v-model="testAnswers[i+5]">
                                     <label for="dict">[[option]]</label>
                                 </div>
                                 <!-- <div v-if="isTranslation == 'tran'">
