@@ -121,7 +121,6 @@ def draw_context_dicts(language_task_set, workerId):
 
     questions = [dict(zip(header, v)) for v in questions]
     for question in questions:
-        print(question['test_qns'])
         test_qns = json.loads(question['test_qns'])
         test_qns_generated = json.loads(question['test_qns_generated'])
         random_index = random.randint(0, len(test_qns_generated) - 1)
