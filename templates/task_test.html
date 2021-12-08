@@ -103,8 +103,12 @@
                                 </div> -->
                                 <div>
                                     <p>
-                                        <b>[[JSON.parse(context.test_qns_generated).question]]</b>
+                                        What is the meaning of <b>[[JSON.parse(context.test_qns_generated).question]]</b>?
                                     </p>
+                                </div>
+                                <div>
+                                    <input type="radio" :name=i :value=-1 v-model="testAnswers[i]">
+                                    <label for="dict">I don't know</label>
                                 </div>
                                 <div v-for="(option, j) of JSON.parse(context.test_qns_generated).options">
                                     <input type="radio" :name=i :value=j v-model="testAnswers[i+5]">
