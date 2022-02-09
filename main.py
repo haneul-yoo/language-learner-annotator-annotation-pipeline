@@ -83,8 +83,6 @@ def get_context_dict(context_id):
 
 
 def get_questions():
-    # with open('%s/questions.json' % data_path, 'r') as f:
-    #     questions = json.load(f)
     json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/question/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
     header = json_url[0]
     questions = [dict(zip(header, v)) for v in json_url[1:]]
@@ -99,8 +97,6 @@ def get_validate_texts():
     return validate_texts
 
 def draw_question_ids_over_limit():
-    # response_filenames = os.listdir('%s/response' % output_path)
-    # response_ids = [x.split('__res__')[0].split('/')[-1] for x in response_filenames]
     response_ids = [x.name for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json'))]
     response_counter = Counter(response_ids)
     return [k for k, v in response_counter.items() if v >= user_count_per_context]
@@ -128,9 +124,6 @@ def draw_context_dicts(language_task_set, workerId):
         question['test_qns'] = json.dumps(test_qns[0])
 
     return questions
-
-    # context_ids = draw_context_ids()
-    # return [get_context_dict(cid) for cid in context_ids]
 
 
 def is_user_id(uid):
@@ -168,7 +161,6 @@ def save_test(res_output_path, context_id, user_id, response, isPassed, workerId
         'qns_generated': qns_generated,
     }
     with open(file_path, 'w', encoding='utf-8') as f:
-        # f.write(json.dumps(response))
         f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
 
@@ -188,14 +180,12 @@ def save_response(res_output_path, context_id, user_id, response, ground_truth, 
         'translation': translation
     }
     with open(file_path, 'w') as f:
-        # f.write(json.dumps(response))
         f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
 
 def get_language_task_set():
     json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-ner/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
     language_task_set = list(set((row[2], row[0]) for row in json_url[1:]))
-    # language_task_set = list({v['language']:v for v in [{'language': row[2], 'task': row[0]} for row in json_url[1:]]}.values())
     return language_task_set
 
 
@@ -247,7 +237,6 @@ def task_draw():
     language_task_set = data['language_task_set']
     isTranslation = data['isTranslation']
     uid = generate_user_id()
-    # context_dicts = draw_context_dicts(language_task_set, workerId)
     questions = get_questions()
     validate_texts = get_validate_texts()
     return render_template('task_draw.html',
@@ -274,7 +263,6 @@ def test_submit():
     validate_texts = data['validateTexts']
     test_type = data['testType']
 
-    # for context_dict in context:
     context_dict = context[0]
     r = response
     res_output_path = output_path + "/" + test_type + "test-output/" if r else output_path + "/" + test_type + "test-output/"
@@ -303,17 +291,10 @@ def task_submit():
     start_time = data['start_time']
     end_time = data['end_time']
     translation = data['translation']
-    # validatorValues = data['validatorValues']
-    # if isPassed:
-    #     res_output_path = output_path + "/response/"
-    # else:
-    #     res_output_path = output_path + "/no_response/"
-    #     save_response(res_output_path, "attention", user_id, validatorValues, isPassed)
 
-    # for context_id, value in response.items():
     for context_dict in context:
         r = response[context_dict['id']] if context_dict['id'] in response else None
-        json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-real/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+        json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-ner/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
         language_task_set = list(set((row[2], row[0]) for row in json_url[1:]))
         gt = [row[4] for row in json_url[1:] if row[3] == context_dict['id']]
         gt = gt[0] if gt else None
