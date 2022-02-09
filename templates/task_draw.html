@@ -21,85 +21,6 @@
     <div class="container v-large-padded h-padded">
         <div class="content">
             <template v-for="(context, i) of contexts" v-if="i === contextIndex" >
-                <!-- <div class="v-padded validator" v-if="validateIndexes.includes(contextIndex)">
-                    <div class="columns">
-                        <div class="column is-one-third">
-                            <h4>Dialog</h4>
-                            <vue-markdown :source="context.dialog"></vue-markdown><br />
-                            <h4>Response</h4>
-                            <vue-markdown :source="validateTexts[validateIndexes.indexOf(contextIndex)].text"></vue-markdown>
-                        </div>
-                        <div class="column">
-                            <h4>Questions</h4>
-                            <div class="v-padded" v-for="question in questions" :key="question.id">
-                                <p>
-                                    [[ question.text ]] Ignore this question and follow the direction.
-                                </p>
-                                <div class="buttons has-addons is-left">
-                                    <span class="button is-static">
-                                        [[ question.mintext ]]
-                                    </span>
-                                    <button v-for="v in [1, 2, 3, 4, 5]" :key="v" class="button"
-                                        :class="{ 'is-black': isValidateValue(contextIndex, question.id, v) }"
-                                        @click="selectValidateValue(contextIndex, question.id, v, v === validateTexts[validateIndexes.indexOf(contextIndex)].value)">
-                                        [[ v ]]
-                                    </button>
-                                    <span class="button is-static">
-                                        [[ question.maxtext ]]
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr />
-                </div> -->
-                <!-- <div v-for="candidateId in candidateIds" :key="i + '__' + candidateId" class="v-padded">
-                    <div class="columns">
-                        <div class="column is-one-third">
-                            <h4>Dialog</h4>
-                            <vue-markdown :source="context.dialog"></vue-markdown><br />
-                            <h4>Response</h4>
-                            <vue-markdown :source="context.candidates[candidateId]"></vue-markdown>
-                        </div>
-                        <div class="column">
-                            <h4>Questions</h4>
-                            <div class="v-padded" v-for="question in questions" :key="question.id">
-                                <p>
-                                    [[ question.text ]]
-                                </p>
-                                <div class="buttons has-addons is-left">
-                                    <span class="button is-static">
-                                        [[ question.mintext ]]
-                                    </span>
-                                    <button v-for="v in [1, 2, 3, 4, 5]" :key="v" class="button"
-                                        :class="{ 'is-black': isValue(candidateId, question.id, v) }"
-                                        @click="selectValue(candidateId, question.id, v)">
-                                        [[ v ]]
-                                    </button>
-                                    <span class="button is-static">
-                                        [[ question.maxtext ]]
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr />
-                </div> -->
-                <!-- <div v-if="contextIndex === validateIndex">
-                    <div class="columns">
-                        <div class="column is-one-third">
-                            <h4>Sentence</h4>
-                            <p>
-                                <b>Instruction</b>
-                                This is a question to validate your answer. Answer as <b>[[ question.option[validateValue+''] ]]</b> for a following question. 
-                            </p>
-                        </div>
-                        <div class="column">
-                            <h4>Question</h4>
-                            Follow the instruction on the left side
-                        </div>
-                    </div>
-                </div> -->
                 <div>
                     <div>
                         <div v-if="context.task === 'machine reading comprehension'" class="columns">
@@ -124,28 +45,11 @@
                                         </p>
                                     </div>
                                 </div>
-                                <!-- <button v-if="isHiddens[context.id] % 2" @click="updateTranslations(context.id)" class="button">Hide English translations</button>
-                                <button v-else @click="updateTranslations(context.id)" class="button">Show English Translations</button>
-                                <div v-if="isHiddens[context.id] % 2">
-                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
-                                        <p>
-                                            <b>[[key]]</b>
-                                            [[value]]
-                                        </p>
-                                    </div>
-                                </div> -->
                             </div>
                             <div class="column">
                                 <h4>Question</h4>
-                                <div v-for="question in questions" v-if="question.task === 'machine reading comprehension'">
+                                <div v-for="question in questions">
                                     [[question.text]]
-                                    <!-- [[ response[context.id] ]] -->
-                                    <!-- <div v-if="response[context.id]['answerstart'] && !response[context.id]['answerspan']" v-for="(value, key) of response[context.id]">
-                                        <b>[[key]]</b> I don't know
-                                    </div>
-                                    <div v-else v-for="(value, key) of response[context.id]">
-                                        <b>[[key]]</b>[[value]]
-                                    </div> -->
                                     <div v-if="context.id in response && response[context.id]['answerstart'] && !response[context.id]['answerspan']">
                                         <div v-for="(value, key) of response[context.id]">
                                             <b>[[key]]</b> I don't know
@@ -159,6 +63,35 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div v-else-if="context.task === 'named entity recognition'" class="columns">
+                            <div class="column is-two-thirds">
+                                <h4>Sentence</h4>
+                                <div id="ner" ref="target" @select="showNamedEntity" disabled style="border:2px solid turquoise;">[[JSON.parse(context.sentence).sentence]]</div>
+                                <br/>
+                                <!-- <b>Your Answer</b>
+                                <div v-if="context.id in response && response[context.id] != -1" v-for="(type, index) in response[context.id]" style="background-color: buttonColorMap[type]; display: inline;">[[JSON.parse(context.sentence).token[index] ]]</div>
+                                <div v-else-if="context.id in response && response[context.id] === -1" style="text-decoration: line-through;">[[JSON.parse(context.sentence).sentence]]</div> -->
+                                <hr/>
+                                <div v-if="isTranslation == 'tran'">
+                                    [[context.sentence_trans]]
+                                </div>
+                            </div>
+                            <div class="column">
+                                <h4>Question</h4>
+                                <div v-for="question in questions" v-if="question.task === context.task">
+                                    [[question.text]]
+                                    <br/>
+                                    <div class="buttons">
+                                        <button v-for="v in Object.keys(question.option)" :key="v" @click="selectEntityType(v)" class="button" style="color: buttonColorMap[v]">[[ question.option[v] ]]</button>
+                                        <button @click="selectEntityType('O')" class="button">none (deselect)</button>
+                                    </div>
+                                    <button @click="selectEntityType(-1)" class="button is-danger"></i>I don't know</button>
+                                </div>
+                                [[response]]
+                            </div>
+                        </div>
+
                         <div v-else class="columns">
                             <div class="column is-two-thirds">
                                 <h4>Sentence</h4>
@@ -177,16 +110,6 @@
                                         </p>
                                     </div>
                                 </div>
-                                <!-- <button v-if="isHiddens[context.id] % 2" v-on:click="updateTranslations(context.id)" class="button">Hide English translations</button>
-                                <button v-else v-on:click="updateTranslations(context.id)" class="button">Show English Translations</button>
-                                <div v-if="isHiddens[context.id] % 2">
-                                    <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
-                                        <p>
-                                            <b>[[key]]</b>
-                                            [[value]]
-                                        </p>
-                                    </div>
-                                </div> -->
                             </div>
                             <div class="column">
                                 <h4>Question</h4>
@@ -205,8 +128,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="v-padded">
                     <div class="field is-grouped">
                         <p v-if="contextIndex > 0" class="control">
                             <button class="button is-warn" @click="contextIndex--">
@@ -261,83 +182,42 @@
             contexts: this.__contexts__,
             questions: this.__questions__,
             workerId: this.__workerId__,
-            // validateTexts: this.__validate_texts__,
             contextIndex: loadValue('contextIndex') || 0,
             response: loadValue('response') || {},
-            // candidateIds: [],
-            // validateIndexes: [],
-            // validatorValues: {},
             validateIndex: -1,
             validatorValue: -1,
             isTranslation: this.__isTranslation__,
             isHiddens: {},
             start_time: Date.now(),
+            nerStartIndex: -1,
+            nerEndIndex: -1,
+            buttonColorMap: {'DAT': 'Pink', 'EVT': 'Orange', 'FNB': 'Yellow', 'IND': 'GreenYellow', 'LOC': 'DarkKhaki', 'ORG': 'Aquamarine', 'PER': 'SkyBlue', 'QNT': 'Thistle', 'TIM': 'Silver'},
+            // buttonColorMap: ['Pink', 'Orange', 'Yellow', 'GreenYellow', 'DarkKhaki', 'Aquamarine', 'SkyBlue', 'Thistle', 'Silver'],
+            // buttonColorMap: ['#FFC0CB', '#FFA500', '#FFFF00', '#ADFF2F', '#BDB76B', '#7FFFD4', '#87CEEB', '#D8BFD8', '#C0C0C0']
         },
         created() {
-            console.log('here', app.isTranslation);
-            // this.candidateIds = this.shuffle(Object.keys(this.contexts[this.contextIndex].candidates));
-            // this.validateIndexes = [Math.floor(this.contexts.length / 2), this.contexts.length - 1];
-            // this.validateIndexes.forEach(i => {
-            //     const questionValues = {};
-            //     this.questions.forEach(q => {
-            //         questionValues[q.id] = { value: null, passed: false };
-            //     });
-            //     Vue.set(
-            //         this.validatorValues,
-            //         i,
-            //         questionValues
-            //     );
-            // });
             this.validateIndex = Math.floor(Math.random() * 5);
             this.validatorValue = Math.floor(Math.random());
-            // this.isHiddens = Array(this.contexts.length).fill(0);
-            // this.isHiddens = Array(this.contexts.length).fill(0).slice();
             this.contexts.forEach(c => {
-                // console.log(c);
-                // console.log(c.id);
-                // console.log(this.isHiddens);
-                // Vue.set(this.isHiddens, c.id, 0);
                 if (app.isTranslation == 'tran')
                     Vue.set(this.isHiddens, c.id, 1);
                 else
                     Vue.set(this.isHiddens, c.id, 0);
             })
-            // console.log(this.isHiddens);
-            // console.log(app.isHiddens);
         },
         mounted() {
             ['mouseup', 'touchend'].forEach(event => {
                 document.addEventListener(event, event => {
-                    console.log(event);
                     if (event.target === document.getElementById('mrc' || event.target.contains(document.getElementById('mrc'))))
                         this.selectAnswerspan();
+                    else if (event.target === document.getElementById('ner') || event.target.contains(document.getElementById('ner')))
+                        this.showNamedEntity();
                 })
             });
-            // document.addEventListener('mouseup', event => {
-            // // if (event.target === this.$refs.target || event.target.contains(this.$refs.target))
-            // if (event.target === document.getElementById('mrc' || event.target.contains(document.getElementById('mrc'))))
-            // // if (event.contains(this.mrc))
-            //     this.selectAnswerspan();
-            // });
-            // console.log(document.getElementById('mrc'))
-            // document.getElementById("mrc").addEventListener("selectionchange", event => {
-            //     console.log('selectionchange');
-            //     console.log(event);
-            //     // if (event.target === document.getElementById("mrc" || event.target.contains(document.getElementById("mrc")))){
-            //         // console.log('event yes');
-            //         // this.selectAnswerspan();
-            //     // }
-            //     this.selectAnswerspan();
-            // })
         },
         methods: {
             updateTranslations(index) {
-                console.log(app.isHiddens);
-                // console.log(index);
-                // console.log(app.isHiddens[index]);
                 Vue.set(this.isHiddens, index, this.isHiddens[index] + 1);
-                console.log(app.isHiddens);
-                console.log(this.isHiddens);
             },
             shuffle(array) {
                 let currentIndex = array.length, temporaryValue, randomIndex;
@@ -359,20 +239,40 @@
                     };
                     Vue.set(this.response, context.id, contextResponse);
                 }
-                var txt = document.getElementById('mrc').innerText;
+                // var txt = document.getElementById('mrc').innerText;
                 var selection = window.getSelection();
                 var start = selection.anchorOffset;
                 var end = selection.focusOffset;
                 this.response[context.id].answerstart = Math.min(start, end);
                 this.response[context.id].answerspan = window.getSelection().toString();
             },
-            // isValue(candidateId, questionId, value) {
-            //     const context = this.contexts[this.contextIndex];
-            //     if (!this.response[context.id]) {
-            //         return false;
-            //     }
-            //     return this.response[context.id][candidateId][questionId] === value;
-            // },
+            showNamedEntity() {
+                const context = this.contexts[this.contextIndex];
+                if (!(context.id in this.response)) {
+                    var contextResponse = Array(JSON.parse(context.sentence)["sentence"].length).fill('O');
+                    Vue.set(this.response, context.id, contextResponse);
+                }
+                var selection = window.getSelection();
+                var start = Math.min(selection.anchorOffset, selection.focusOffset);
+                var end = Math.max(selection.anchorOffset, selection.focusOffset);
+                this.nerStartIndex = start;
+                this.nerEndIndex = end;
+            },
+            selectEntityType(type) {
+                const context = this.contexts[this.contextIndex];
+                if (type === -1){
+                    Vue.set(this.response, context.id, -1);
+                    return;
+                }
+                if (this.response[context.id] === -1){
+                    var contextResponse = Array(JSON.parse(context.sentence)["sentence"].length).fill('O');
+                    Vue.set(this.response, context.id, contextResponse);
+                }
+                if (window.getSelection().anchorNode.parentElement === document.getElementById('ner') && window.getSelection().focusNode.parentElement === document.getElementById('ner')){
+                    for (var i = this.nerStartIndex; i < this.nerEndIndex; i++)
+                    Vue.set(this.response[context.id], i, type);
+                }
+            },
             isValue(value) {
                 const context = this.contexts[this.contextIndex];
                 if (!this.response[context.id]) {
@@ -380,21 +280,6 @@
                 }
                 return this.response[context.id] === value;
             },
-            // selectValue(candidateId, questionId, value) {
-            //     const context = this.contexts[this.contextIndex];
-            //     if (!(context.id in this.response)) {
-            //         var candidateIds = Object.keys(context.candidates);
-            //         var contextResponse = {};
-            //         candidateIds.forEach(cid => {
-            //             contextResponse[cid] = {};
-            //             this.questions.forEach(question => {
-            //                 contextResponse[cid][question.id] = null
-            //             });
-            //         });
-            //         Vue.set(this.response, context.id, contextResponse);
-            //     }
-            //     this.response[context.id][candidateId][questionId] = value;
-            // },
             selectValue(value) {
                 const context = this.contexts[this.contextIndex];
                 if (!(context.id in this.response)) {
@@ -403,13 +288,6 @@
                 }
                 this.response[context.id] = value;
             },
-            // isValidateValue(contextIndex, qid, v) {
-            //     return this.validatorValues[contextIndex][qid].value === v;
-            // },
-            // selectValidateValue(contextIndex, qid, value, passed) {
-            //     this.validatorValues[contextIndex][qid].value = value;
-            //     this.validatorValues[contextIndex][qid].passed = passed;
-            // },
             resetValues() {
                 saveValue('uid', null);
                 saveValue('contexts', null);
@@ -418,20 +296,7 @@
                 saveValue('response', null);
             },
             submit() {
-                // Validate the response.
                 let isValid = true;
-                // let isPassed = true;
-                // console.log('vv', this.validatorValues);
-                // Object.keys(this.validatorValues).forEach(r => {
-                //     Object.keys(this.validatorValues[r]).forEach(qid => {
-                //         if (this.validatorValues[r][qid].value === null) {
-                //             isValid = false;
-                //         }
-                //         if (!this.validatorValues[r][qid].passed) {
-                //             isPassed = false;
-                //         }
-                //     });
-                // });
                 this.contexts.forEach(context => {
                     if (!this.response[context.id]) {
                         isValid = false;
@@ -452,12 +317,6 @@
                     alert('You have to answer to all questions.');
                     return;
                 }
-                // //if (!isPassed) {
-                //     // Failed to pass the validity check.
-                // //    window.location.href = '/tasks/done?code=' + encodeURI('pass_no_132v82389a823l3133id112');
-                // //    return;
-                // //}
-                // // Submit with AJAX call.
 
                 axios.post('/tasks/test', {
                     test_type: 'post',
@@ -471,12 +330,10 @@
                     document.write(response.data);
                 }).catch(function (error) {
                     alert('Error occurred on draw: ' + error);
-                    console.log(error);
                 });
 
 
                 isPassed = true;
-                console.log(this.isHiddens);
                 axios.post('/tasks/submit', {
                     context: this.contexts,
                     response: this.response,
@@ -486,18 +343,10 @@
                     start_time: this.start_time,
                     end_time: Date.now(),
                     translation: this.isHiddens
-                    // validatorValues: this.validatorValues
                 }).then(response => {
                     const data = response.data;
                     const succeed = data.startsWith('done:');
                     if (succeed) {
-                        // const code = data.split(':')[1];
-                        // //window.location.href = '/tasks/done?code=' + encodeURI(code);
-                        // if (isPassed) {
-                        //     window.location.href = '/tasks/done?code=' + encodeURI(code);
-                        // } else {
-                        //     window.location.href = '/tasks/done?code=pass_' + encodeURI(code);
-                        // }
                         this.resetValues();
                     } else {
                         alert('Error from server on submit: ' + response);
@@ -509,7 +358,6 @@
         },
         watch: {
             contextIndex() {
-                // this.candidateIds = this.shuffle(Object.keys(this.contexts[this.contextIndex].candidates));
                 saveValue('contextIndex', this.contextIndex);
                 this.$nextTick(() => {
                     document.body.scrollTop = 0; // For Safari

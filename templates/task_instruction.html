@@ -17,31 +17,21 @@
     </nav>
     <div class="container">
         <div v-if="pageIndex === 0" class="content v-large-padded">
-            <div>
-                <!-- <h4>Introduction</h4> -->
+            <!-- <div>
                 <iframe id="pdf" src="https://docs.google.com/document/d/e/2PACX-1vQ-CjpuJdtYUt9xL-DycIXjejTmW0iVw9myJ7ssb8tcKJsZS7_O3h1CK_db2JBQORCiDmWqqNpEv3qJ/pub?embedded=true"></iframe>
-                <!-- <div>
-                    <div id="adobe-dc-view" id="pdf"></div>
-                </div> -->
             </div>
         </div>
         <div v-else-if="pageIndex === 1" class="content v-large-padded">
             <div>
                 <h4>Annotation Manual</h4>
-                <!-- Please read the instruction file carefully. -->
                 <iframe id="pdf" src="https://docs.google.com/document/d/e/2PACX-1vTuoyxy9IZ4v0B9lialc-EU5dXbUk3YNA_2zqY26MHpVkseeEuaDjsGfo3Q3PVUuiuOkChY6BdjP8eW/pub?embedded=true"></iframe>
-                <!-- <iframe id="pdf" src="https://docs.google.com/document/d/e/2PACX-1vQoofTf217iF6UogXzJrJhVbOGA8QPz2vefgSmwy41bYGHr75IcAzEPDwTPpIvF0NTPbjbZ11JNAEY7/pub?embedded=true"></iframe> -->
-                <!-- <div>
-                    <div id="adobe-dc-view" id="pdf"></div>
-                </div> -->
             </div>
-            <hr />
+            <hr /> -->
             <div>
                 <h4>Language / Task Selection</h4>
                 <div>
                     <div v-for="(option, index) in language_task_set" :key="index">
                         <input type="radio" :id="option" :value="option" v-model="checkedSets">
-                        <!-- <input type="checkbox" :id="option" :value="option" v-model="checkedSets"> -->
                         <label :for="option" class="checkbox">[[ option[0] ]] / [[ option[1] ]]</label>
                     </div>
                 </div>
@@ -74,13 +64,15 @@
                     as honor code. <br />
                 </div>
                 <br />
-                <!-- <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true, 'is-loading':buttonClicked}">
-                    Continue
-                </button> -->
             </div>
         </div>
         <div class="v-padded">
-            <div class="field is-grouped">
+            <p class="control">
+                <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true}">
+                    Continue
+                </button>
+            </p>
+            <!-- <div class="field is-grouped">
                 <p v-if="pageIndex > 0" class="control">
                     <button class="button is-warn" @click="pageIndex--">
                         ⇦ Previous
@@ -92,11 +84,11 @@
                     </button>
                 </p>
                 <p v-else-if="pageIndex === 1" class="control">
-                    <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true, 'is-loading':buttonClicked}">
+                    <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true}">
                         Continue
                     </button>
                 </p>
-            </div>
+            </div> -->
         </div>
     </div>    
 </div>
@@ -107,17 +99,6 @@
     }
 </style>
 <script>
-    // document.addEventListener("adobe_dc_view_sdk.ready", function(){
-    //     var adobeDCView = new AdobeDC.View({clientId: "37799426f76141c5a801c3af644b96c0", divId: "adobe-dc-view"});
-    //     adobeDCView.previewFile({
-    //     content:{ location: 
-    //         { url: "/static/annotation_instruction.pdf"}},
-    //     metaData:{fileName: "annotation_instruction.pdf"}
-    //     },
-    //     {
-    //     embedMode: "IN_LINE"
-    //     });
-    // });
     this.__language_task_set__ = {{ language_task_set | tojson | safe}};
     Vue.use(VueMarkdown);
     var app = new Vue({
@@ -153,29 +134,17 @@
                     document.write(response.data);
                 }).catch(function (error) {
                     alert('Error occurred on draw: ' + error);
-                    console.log(error);
                 });
-                // axios.post('/tasks/draw', {
-                //     language_task_set: this.checkedSets,
-                //     isTranslation: this.isTranslation,
-                //     workerId: this.workerId
-                // }).then(function(response) {
-                //     document.write(response.data);
-                // }).catch(function (error) {
-                //     alert('Error occurred on draw: ' + error);
-                //     console.log(error);
-                // });
             },
         },
         watch: {
-            pageIndex() {
-                // this.candidateIds = this.shuffle(Object.keys(this.contexts[this.contextIndex].candidates));
-                saveValue('pageIndex', this.pageIndex);
-                this.$nextTick(() => {
-                    document.body.scrollTop = 0; // For Safari
-                    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-                });
-            },
+            // pageIndex() {
+            //     saveValue('pageIndex', this.pageIndex);
+            //     this.$nextTick(() => {
+            //         document.body.scrollTop = 0; // For Safari
+            //         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            //     });
+            // },
         }
     })
 </script>
