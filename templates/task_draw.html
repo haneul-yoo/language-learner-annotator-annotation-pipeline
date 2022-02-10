@@ -66,12 +66,15 @@
 
                         <div v-else-if="context.task === 'named entity recognition'" class="columns">
                             <div class="column is-two-thirds">
-                                <h4>Sentence</h4>
-                                <div id="ner" ref="target" @select="showNamedEntity" disabled style="border:2px solid turquoise;">[[JSON.parse(context.sentence).sentence]]</div>
+                                <div style="position: relative;">
+                                    <h4>Sentence</h4>
+                                    <div id="ner" ref="target" @select="showNamedEntity" disabled style="border:2px solid turquoise; position: absolute; z-index: 2;">[[JSON.parse(context.sentence).sentence]]</div>
+                                    <div style="position: absolute; z-index: 1; border:2px solid turquoise;">
+                                        <div v-if="context.id in response && response[context.id] === -1" v-bind:style="{'text-decoration': 'line-through', 'position': 'relative', 'z-index': 2}">[[JSON.parse(context.sentence).sentence]]</div>
+                                        <div v-else-if="context.id in response" v-for="(type, index) in response[context.id]" v-bind:style="{'background-color': buttonColorMap[type], 'display': 'inline', 'position': 'relative', 'z-index': 1}">[[JSON.parse(context.sentence).token[index] ]]</div>    
+                                    </div>
+                                </div>
                                 <br/>
-                                <!-- <b>Your Answer</b>
-                                <div v-if="context.id in response && response[context.id] != -1" v-for="(type, index) in response[context.id]" style="background-color: buttonColorMap[type]; display: inline;">[[JSON.parse(context.sentence).token[index] ]]</div>
-                                <div v-else-if="context.id in response && response[context.id] === -1" style="text-decoration: line-through;">[[JSON.parse(context.sentence).sentence]]</div> -->
                                 <hr/>
                                 <div v-if="isTranslation == 'tran'">
                                     [[context.sentence_trans]]
@@ -83,7 +86,7 @@
                                     [[question.text]]
                                     <br/>
                                     <div class="buttons">
-                                        <button v-for="v in Object.keys(question.option)" :key="v" @click="selectEntityType(v)" class="button" style="color: buttonColorMap[v]">[[ question.option[v] ]]</button>
+                                        <button v-for="v in Object.keys(question.option)" :key="v" v-bind:style="{'background-color': buttonColorMap[v]}" @click="selectEntityType(v)" class="button">[[ question.option[v] ]]</button>
                                         <button @click="selectEntityType('O')" class="button">none (deselect)</button>
                                     </div>
                                     <button @click="selectEntityType(-1)" class="button is-danger"></i>I don't know</button>
@@ -191,9 +194,7 @@
             start_time: Date.now(),
             nerStartIndex: -1,
             nerEndIndex: -1,
-            buttonColorMap: {'DAT': 'Pink', 'EVT': 'Orange', 'FNB': 'Yellow', 'IND': 'GreenYellow', 'LOC': 'DarkKhaki', 'ORG': 'Aquamarine', 'PER': 'SkyBlue', 'QNT': 'Thistle', 'TIM': 'Silver'},
-            // buttonColorMap: ['Pink', 'Orange', 'Yellow', 'GreenYellow', 'DarkKhaki', 'Aquamarine', 'SkyBlue', 'Thistle', 'Silver'],
-            // buttonColorMap: ['#FFC0CB', '#FFA500', '#FFFF00', '#ADFF2F', '#BDB76B', '#7FFFD4', '#87CEEB', '#D8BFD8', '#C0C0C0']
+            buttonColorMap: {'DAT': 'Salmon', 'EVT': 'Orange', 'FNB': 'Yellow', 'IND': 'GreenYellow', 'LOC': 'DarkKhaki', 'ORG': 'Aquamarine', 'PER': 'SkyBlue', 'QNT': 'Thistle', 'TIM': 'Silver'},
         },
         created() {
             this.validateIndex = Math.floor(Math.random() * 5);
