@@ -8,7 +8,7 @@ from flask import Flask, redirect, request, render_template
 from ast import literal_eval
 from pathlib import Path
 
-app = Flask(__name__, host="0.0.0.0:5000")
+app = Flask(__name__)
 data_path = './data'
 output_path = '/mnt/nas2/haneul/language_learner_annotation/ner_test'
 # output_path = '/Volumes/share/haneul/language_learner_annotation/ner_test'
@@ -319,4 +319,4 @@ if __name__ == '__main__':
     app.logger.addHandler(logging.StreamHandler(sys.stdout))
     app.logger.setLevel(logging.DEBUG)
 
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0:5000")
