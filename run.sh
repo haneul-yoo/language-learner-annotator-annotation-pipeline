@@ -4,5 +4,5 @@ gunicorn main:app \
     --workers 8 \
     --bind 0.0.0.0:5000 \
     --access-logfile ./access.log \
-    --error-logfine ./error.log \
+    --error-logfile ./error.log \
     --reload
