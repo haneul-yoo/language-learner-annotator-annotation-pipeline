@@ -8,7 +8,7 @@ from flask import Flask, redirect, request, render_template
 from ast import literal_eval
 from pathlib import Path
 
-app = Flask(__name__)
+app = Flask(__name__, host="0.0.0.0:5000")
 data_path = './data'
 output_path = '/mnt/nas2/haneul/language_learner_annotation/ner_test'
 # output_path = '/Volumes/share/haneul/language_learner_annotation/ner_test'
