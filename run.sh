@@ -3,4 +3,4 @@
 gunicorn main:app \
     --workers 8 \
     --bind 0.0.0.0:5000 \
-    --access-logfile
+    --access-logfile -
