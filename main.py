@@ -7,13 +7,15 @@ from collections import Counter
 from flask import Flask, redirect, request, render_template
 from ast import literal_eval
 from pathlib import Path
+import logging
+import sys
 
 app = Flask(__name__)
 data_path = './data'
 # output_path = '/mnt/nas2/haneul/language_learner_annotation/ner_test'
 # output_path = '/Volumes/share/haneul/language_learner_annotation/ner_test'
 output_path = './output'
-context_count_per_user = 5
+context_count_per_user = 10
 user_count_per_context = 3
 secret_code = 'done_'
 
@@ -104,7 +106,7 @@ def draw_question_ids_over_limit():
 
 def draw_context_dicts(language_task_set, workerId):
 
-    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-ner/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-instruction/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
 
     header = json_url[0]
     
@@ -184,9 +186,10 @@ def save_response(res_output_path, context_id, user_id, response, ground_truth, 
 
 
 def get_language_task_set():
-    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-ner/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
-    language_task_set = list(set((row[2], row[0]) for row in json_url[1:]))
-    return language_task_set
+    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-instruction/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+    language_set = list(set(row[2] for row in json_url[1:]))
+    task_set = list(set(row[0] for row in json_url[1:]))
+    return sorted(language_set), sorted(task_set)
 
 
 @app.route('/')
@@ -196,10 +199,10 @@ def index():
 
 @app.route('/tasks')
 def task_index():
-    language_task_set = sorted(get_language_task_set())
+    language_set, task_set = get_language_task_set()
     return render_template('task_instruction.html',
-        language_task_set=language_task_set)
-    return render_template('task_index.html')
+        language_set=language_set,
+        task_set=task_set)
 
 
 @app.route('/tasks/test', methods=['POST'])
@@ -208,10 +211,11 @@ def task_test():
     test_type = data['test_type']
     if (test_type == 'pre'):
         workerId = data['workerId']
-        language_task_set = data['language_task_set']
+        language = data['language']
+        task = data['task']
         isTranslation = data['isTranslation']
         uid = generate_user_id()
-        context_dicts = draw_context_dicts(language_task_set, workerId)
+        context_dicts = draw_context_dicts([language, task], workerId)
         questions = get_questions()
         validate_texts = get_validate_texts()
     else:
@@ -294,7 +298,7 @@ def task_submit():
 
     for context_dict in context:
         r = response[context_dict['id']] if context_dict['id'] in response else None
-        json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-ner/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+        json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-instruction/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
         language_task_set = list(set((row[2], row[0]) for row in json_url[1:]))
         gt = [row[4] for row in json_url[1:] if row[3] == context_dict['id']]
         gt = gt[0] if gt else None

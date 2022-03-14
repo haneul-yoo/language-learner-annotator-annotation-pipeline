@@ -27,12 +27,32 @@
                 <iframe id="pdf" src="https://docs.google.com/document/d/e/2PACX-1vTuoyxy9IZ4v0B9lialc-EU5dXbUk3YNA_2zqY26MHpVkseeEuaDjsGfo3Q3PVUuiuOkChY6BdjP8eW/pub?embedded=true"></iframe>
             </div>
             <hr /> -->
-            <div>
+            <!-- <div>
                 <h4>Language / Task Selection</h4>
                 <div>
                     <div v-for="(option, index) in language_task_set" :key="index">
                         <input type="radio" :id="option" :value="option" v-model="checkedSets">
                         <label :for="option" class="checkbox">[[ option[0] ]] / [[ option[1] ]]</label>
+                    </div>
+                </div>
+            </div>
+            <hr /> -->
+            <div>
+                <h4>Language Selection</h4>
+                <div>
+                    <div v-for="(option, index) in language_set" :key="index">
+                        <input type="radio" :id="option" :value="option" v-model="language">
+                        <label :for="option" class="checkbox">[[ option ]]</label>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div>
+                <h4>Task Selection</h4>
+                <div>
+                    <div v-for="(option, index) in task_set" :key="index">
+                        <input type="radio" :id="option" :value="option" v-model="task">
+                        <label :for="option" class="checkbox">[[ option ]]</label>
                     </div>
                 </div>
             </div>
@@ -72,23 +92,6 @@
                     Continue
                 </button>
             </p>
-            <!-- <div class="field is-grouped">
-                <p v-if="pageIndex > 0" class="control">
-                    <button class="button is-warn" @click="pageIndex--">
-                        ⇦ Previous
-                    </button>
-                </p>
-                <p v-if="pageIndex === 0" class="control">
-                    <button class="button is-success" @click="pageIndex++">
-                        ⇨ Next
-                    </button>
-                </p>
-                <p v-else-if="pageIndex === 1" class="control">
-                    <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true}">
-                        Continue
-                    </button>
-                </p>
-            </div> -->
         </div>
     </div>    
 </div>
@@ -99,35 +102,44 @@
     }
 </style>
 <script>
-    this.__language_task_set__ = {{ language_task_set | tojson | safe}};
+    this.__language_set__ = {{ language_set | tojson | safe }};
+    this.__task_set__ = {{ task_set | tojson | safe }}
     Vue.use(VueMarkdown);
     var app = new Vue({
         el: '#instruction-view',
         delimiters: ['[[', ']]'],
         data: {
-            language_task_set: this.__language_task_set__,
+            language_set: this.__language_set__,
+            task_set: this.__task_set__,
             workerId: '',
             checkedSets: [],
-            isTranslation: [],
+            language: '',
+            task: '',
+            isTranslation: '',
             pageIndex: 0,
         },
         methods: {
             submit() {
                 if (this.workerId === '') {
-                    alert('You have to write down your worker Id.');
+                    alert('You should write down your worker Id.');
                     return;
                 }
-                if (this.checkedSets.length === 0) {
-                    alert('You should select a language/task set.');
+                if (this.language === '') {
+                    alert('You should select a language.');
                     return;
                 }
-                if (this.isTranslation.length === 0) {
+                if (this.task === '') {
+                    alert('You should select a task.');
+                    return;
+                }
+                if (this.isTranslation === '') {
                     alert('You should select a translation option.');
                     return;
                 }
                 axios.post('/tasks/test', {
                     test_type: 'pre',
-                    language_task_set: this.checkedSets,
+                    language: this.language,
+                    task: this.task,
                     isTranslation: this.isTranslation,
                     workerId: this.workerId
                 }).then(function(response) {

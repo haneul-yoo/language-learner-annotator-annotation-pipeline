@@ -36,11 +36,11 @@
                                         [[JSON.parse(context.sentence).question]]
                                     </p>
                                 </div>
-                                <hr/>
                                 <div v-if="isTranslation == 'tran'">
+                                    <hr/>
                                     <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
                                         <p>
-                                            <b>[[key]]</b>
+                                            <b> Translated [[key]]</b>
                                             [[value]]
                                         </p>
                                     </div>
@@ -48,17 +48,18 @@
                             </div>
                             <div class="column">
                                 <h4>Question</h4>
-                                <div v-for="question in questions">
+                                <div v-for="question in questions" v-if="question.task === context.task">
                                     [[question.text]]
-                                    <div v-if="context.id in response && response[context.id]['answerstart'] && !response[context.id]['answerspan']">
-                                        <div v-for="(value, key) of response[context.id]">
-                                            <b>[[key]]</b> I don't know
-                                        </div>
+                                    <div v-if="!(context.id in response)">
+                                        <b>Answer Span</b><br/>
+                                        <b>Start Index</b>
+                                    </div>
+                                    <div v-else-if="context.id in response && response[context.id]['answerstart'] && !response[context.id]['answerspan']">
+                                        <b>Answer</b> I don't know
                                     </div>
                                     <div v-else>
-                                        <div v-for="(value, key) of response[context.id]">
-                                            <b>[[key]]</b>[[value]]
-                                        </div>
+                                        <b>Answer Span</b> [[ response[context.id].answerspan ]]<br/>
+                                        <b>Start Index</b> [[ response[context.id].answerstart ]]
                                     </div>
                                 </div>
                             </div>
@@ -75,8 +76,8 @@
                                     </div>
                                 </div>
                                 <br/>
-                                <hr/>
                                 <div v-if="isTranslation == 'tran'">
+                                    <hr/>
                                     [[context.sentence_trans]]
                                 </div>
                             </div>
@@ -103,11 +104,11 @@
                                         [[value]]
                                     </p>
                                 </div>
-                                <hr/>
                                 <div v-if="isTranslation == 'tran'">
+                                    <hr/>
                                     <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
                                         <p>
-                                            <b>[[key]]</b>
+                                            <b> Translated [[key]]</b>
                                             [[value]]
                                         </p>
                                     </div>
@@ -130,6 +131,7 @@
                         </div>
                     </div>
                 </div>
+                <hr/>
                     <div class="field is-grouped">
                         <p v-if="contextIndex > 0" class="control">
                             <button class="button is-warn" @click="contextIndex--">
