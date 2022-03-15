@@ -16,7 +16,7 @@ data_path = './data'
 # output_path = '/Volumes/share/haneul/language_learner_annotation/ner_test'
 output_path = './output'
 context_count_per_user = 10
-user_count_per_context = 3
+user_count_per_context = 6
 secret_code = 'done_'
 
 
@@ -35,53 +35,53 @@ def init_paths():
         if not os.path.exists(path):
             os.makedirs(path)
 
-def get_all_context_ids():
-    context_filenames = os.listdir('%s/contexts' % data_path)
-    context_ids = []
-    for filename in context_filenames:
-        if filename.endswith('.json'):
-            filename_strip = filename[:-5]
-            context_ids.append(filename_strip)
-    return context_ids
+# def get_all_context_ids():
+#     context_filenames = os.listdir('%s/contexts' % data_path)
+#     context_ids = []
+#     for filename in context_filenames:
+#         if filename.endswith('.json'):
+#             filename_strip = filename[:-5]
+#             context_ids.append(filename_strip)
+#     return context_ids
 
 
-def get_context_response_count_dict():
-    context_ids = get_all_context_ids()
-    response_filenames = os.listdir('%s/annotation-output/response' % output_path)
-    counter = {cid: 0 for cid in context_ids}
-    for filename in response_filenames:
-        if '__res__' not in filename:
-            continue
-        split_filename = filename.split('__res__')
-        if len(split_filename) != 2 or not split_filename[1].endswith('.json'):
-            continue
-        context_id = split_filename[0]
-        counter[context_id] += 1
-    return counter
+# def get_context_response_count_dict():
+#     context_ids = get_all_context_ids()
+#     response_filenames = os.listdir('%s/annotation-output/response' % output_path)
+#     counter = {cid: 0 for cid in context_ids}
+#     for filename in response_filenames:
+#         if '__res__' not in filename:
+#             continue
+#         split_filename = filename.split('__res__')
+#         if len(split_filename) != 2 or not split_filename[1].endswith('.json'):
+#             continue
+#         context_id = split_filename[0]
+#         counter[context_id] += 1
+#     return counter
 
 
-def draw_context_ids():
-    count_dict = get_context_response_count_dict()
-    context_ids = []
-    while len(context_ids) < context_count_per_user:
-        # Draw a context that currently has minimum number of responses.
-        valid_counts = [count for cid, count in count_dict.items() if cid not in context_ids]
-        if not valid_counts:
-            break
-        min_count = min(valid_counts)
-        draw_box = [cid for cid, count in count_dict.items() if (count == min_count) and (cid not in context_ids)]
-        context_ids.append(random.choice(draw_box))
+# def draw_context_ids():
+#     count_dict = get_context_response_count_dict()
+#     context_ids = []
+#     while len(context_ids) < context_count_per_user:
+#         # Draw a context that currently has minimum number of responses.
+#         valid_counts = [count for cid, count in count_dict.items() if cid not in context_ids]
+#         if not valid_counts:
+#             break
+#         min_count = min(valid_counts)
+#         draw_box = [cid for cid, count in count_dict.items() if (count == min_count) and (cid not in context_ids)]
+#         context_ids.append(random.choice(draw_box))
 
-    return context_ids
+#     return context_ids
 
 
-def get_context_dict(context_id):
-    file_path = '%s/contexts/%s.json' % (data_path, context_id)
-    with open(file_path, 'r') as f:
-        context_dict = json.load(f)
-    if 'id' not in context_dict:
-        context_dict['id'] = context_id
-    return context_dict
+# def get_context_dict(context_id):
+#     file_path = '%s/contexts/%s.json' % (data_path, context_id)
+#     with open(file_path, 'r') as f:
+#         context_dict = json.load(f)
+#     if 'id' not in context_dict:
+#         context_dict['id'] = context_id
+#     return context_dict
 
 
 def get_questions():
@@ -105,17 +105,16 @@ def draw_question_ids_over_limit():
 
 
 def draw_context_dicts(language_task_set, workerId):
-
     json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-instruction/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
-
     header = json_url[0]
     
-    questions = json_url[1:]
-    random.shuffle(questions)
+    question_candidates = json_url[1:]
+    random.shuffle(question_candidates)
     questions_over_limit = draw_question_ids_over_limit()
     responses = [x.name.split('__res__')[0] for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json')) if workerId in x.name]
-    questions = [q for q in questions if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set] and q[3] not in responses]
-    questions = questions[:min(context_count_per_user, len(questions))]
+    question_candidates = [q for q in question_candidates if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set] and q[3] not in responses]
+    questions = sum([random.sample([q for q in question_candidates if q[10] == str(i)], 2) for i in range(1, 6)], [])
+    # questions = questions[:min(context_count_per_user, len(questions))]
 
     questions = [dict(zip(header, v)) for v in questions]
     for question in questions:
@@ -225,6 +224,16 @@ def task_test():
         context_dicts = data['context_dicts']
         questions = data['questions']
         validate_texts = 'asssssss'
+    
+    whitelist = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/whitelist/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values'][1:]
+    whitelist = [whitelist[i][:4] for i in range(len(whitelist))]
+    if test_type == 'pre' and [workerId, language, task, isTranslation] not in whitelist:
+        return render_template('task_whitelist.html',
+            workerId=workerId,
+            language=language,
+            task=task,
+            isTranslation=isTranslation)
+
     return render_template('task_test.html',
         test_type=test_type,
         isTranslation=isTranslation,

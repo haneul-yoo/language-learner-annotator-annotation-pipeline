@@ -9,10 +9,9 @@
 </nav>
 <div class="container">
     <div class="content v-large-padded">
-        <h3>Thank you for your participation!</h3>
+        <h3>Sorry, you're not in the list!</h3>
         <p>
-            Your answers has been successfully submitted to the server!<br />
+            <code>{{ workerId }}</code> is not allocated to <code>{{ language }}</code> <code>{{ task }}</code> <code>{{ isTranslation }}</code>.</br>
+            Please check whether your selection again, and contact us if you have any issue.
         </p>
-        <code>{{ code }}</code>
-</div>
 {% endblock %}
