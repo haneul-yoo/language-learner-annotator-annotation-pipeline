@@ -227,7 +227,7 @@ def task_test():
     
     whitelist = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/whitelist/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values'][1:]
     whitelist = [whitelist[i][:4] for i in range(len(whitelist))]
-    if test_type == 'pre' and [workerId, language, task, isTranslation] not in whitelist:
+    if test_type == 'pre' and [workerId.lower(), language, task, isTranslation] not in whitelist:
         return render_template('task_whitelist.html',
             workerId=workerId,
             language=language,
