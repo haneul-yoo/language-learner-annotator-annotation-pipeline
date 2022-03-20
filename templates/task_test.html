@@ -25,7 +25,7 @@
                     <h4>Please answer the given questions.</h4>
                 </div>
             </div>
-            <template v-for="(context, i) of contexts">
+            <template v-for="(num, i) of qnNum">
                 <div>
                     <div>
                         <div class="columns">
@@ -40,14 +40,14 @@
                                 </div> -->
                                 <div>
                                     <p>
-                                        <b>[[JSON.parse(context.test_qns).question]]</b>
+                                        <b>[[JSON.parse(context[num].test_qns).question]]</b>
                                     </p>
                                 </div>
                                 <div>
                                     <input type="radio" :name=i :value=-1 v-model="testAnswers[i]">
                                     <label for="dict">I don't know</label>
                                 </div>
-                                <div v-for="(option, j) of JSON.parse(context.test_qns).options">
+                                <div v-for="(option, j) of JSON.parse(context[num].test_qns).options">
                                     <input type="radio" :name=i :value=j v-model="testAnswers[i]">
                                     <label for="dict">[[option]]</label>
                                 </div>
@@ -226,6 +226,29 @@
             //         questionValues
             //     );
             // });
+            function shuffle(array) {
+                var i = array.length,
+                    j = 0,
+                    temp;
+
+                while (i--) {
+
+                    j = Math.floor(Math.random() * (i+1));
+
+                    // swap randomly chosen element with current element
+                    temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+
+                }
+
+                return array;
+            }
+            var qnNums = shuffle([0,1,2,3,4,5,6,7,8,9]);
+            qnNums.splice(5,5);
+            this.qnNums = qnNums;
+
+
             this.validateIndex = Math.floor(Math.random() * 5);
             this.validatorValue = Math.floor(Math.random());
             // this.isHiddens = Array(this.contexts.length).fill(0);
