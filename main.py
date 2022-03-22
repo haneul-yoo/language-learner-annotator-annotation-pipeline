@@ -143,7 +143,28 @@ def generate_user_id():
     return uid
 
 
-def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation, context):
+# def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation, context):
+#     if isPassed:
+#         file_path = '%s/%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
+#     else:
+#         file_path = '%s/no_pass__%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
+#     qns = [x['test_qns'] for x in context]
+#     qns_generated = [x['test_qns_generated'] for x in context]
+#     data = {
+#         'context_id': context_id,
+#         'user_id': user_id,
+#         'response': response,
+#         'worker_id': workerId,
+#         'start_time': start_time,
+#         'end_time': end_time,
+#         'translation': translation,
+#         'qns': qns,
+#         'qns_generated': qns_generated,
+#     }
+#     with open(file_path, 'w', encoding='utf-8') as f:
+#         f.write(json.dumps(data, ensure_ascii=False, indent=4))
+
+def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation, context, qnNums):
     if isPassed:
         file_path = '%s/%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
     else:
@@ -160,6 +181,7 @@ def save_test(res_output_path, context_id, user_id, response, isPassed, workerId
         'translation': translation,
         'qns': qns,
         'qns_generated': qns_generated,
+        'qnNums': qnNums,
     }
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(json.dumps(data, ensure_ascii=False, indent=4))
@@ -276,10 +298,15 @@ def test_submit():
     validate_texts = data['validateTexts']
     test_type = data['testType']
 
+    ''''''
+    qnNums  = data['qnNums']
+    ''''''
+
     context_dict = context[0]
     r = response
     res_output_path = output_path + "/" + test_type + "test-output/" if r else output_path + "/" + test_type + "test-output/"
-    save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context)
+    # save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context)
+    save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context, qnNums)
     
     if test_type == 'pre':
         return render_template('task_draw.html',
