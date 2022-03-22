@@ -185,7 +185,7 @@
     this.__isTranslation__ = loadValue('isTranslation') || '{{ isTranslation }}';
     this.__test_type__ = loadValue('test_type') || '{{ test_type }}'
     this.__testAnswers__ = []
-    for (let i = 0; i < this.__contexts__.length * 2; i++) {this.__testAnswers__.push([])}
+    for (let i = 0; i < this.__contexts__.length * 2 - 5; i++) {this.__testAnswers__.push([])}
     saveValue('uid', this.__uid__);
     saveValue('contexts', this.__contexts__);
     saveValue('questions', this.__questions__);
