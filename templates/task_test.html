@@ -106,13 +106,13 @@
                                         What is the meaning of <b>[[JSON.parse(context.test_qns_generated).question]]</b>?
                                     </p>
                                 </div>
-                                <div>
-                                    <input type="radio" :name=i+5 :value=-1 v-model="testAnswers[i+5]">
-                                    <label for="dict">I don't know</label>
-                                </div>
                                 <div v-for="(option, j) of JSON.parse(context.test_qns_generated).options">
                                     <input type="radio" :name=i+5 :value=j v-model="testAnswers[i+5]">
                                     <label for="dict">[[option]]</label>
+                                </div>
+                                <div>
+                                    <input type="radio" :name=i+5 :value=-1 v-model="testAnswers[i+5]">
+                                    <label for="dict">I don't know</label>
                                 </div>
                                 <!-- <div v-if="isTranslation == 'tran'">
                                     <div v-for="(value, key) of JSON.parse(context.sentence_trans)">
