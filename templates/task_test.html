@@ -15,10 +15,16 @@
             </div>
         </div>
     </nav>
-    <div v-if="!contexts || !contexts.length">
-        There are no more questions left in this language / task pair.<br/>Please select other options and try again.
+    <div v-if="!contexts || !contexts.length || contexts.length != 10" class="container v-large-padded h-padded">
+        <div class="content">
+            <h3>Sorry, no more questions left!</h3>
+            <p>
+                There might be some issues on selecting annotation questions.<br/>
+                Please try again and contact us.
+            </p>
+        </div>
     </div>
-    <div class="container v-large-padded h-padded">
+    <div v-else class="container v-large-padded h-padded">
         <div class="content">
             <div>
                 <div>
