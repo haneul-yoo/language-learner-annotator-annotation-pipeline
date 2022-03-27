@@ -25,7 +25,7 @@
                     <h4>Please answer the given questions.</h4>
                 </div>
             </div>
-            <template v-for="(num, i) of qnNums">
+            <template v-for="(qn, i) of currTests">
                 <div>
                     <div>
                         <div class="columns">
@@ -40,10 +40,10 @@
                                 </div> -->
                                 <div>
                                     <p>
-                                        <b>[[JSON.parse(contexts[num].test_qns).question]]</b>
+                                        <vue-markdown>[[JSON.parse(qn[1])[0].question]]</vue-markdown>
                                     </p>
                                 </div>
-                                <div v-for="(option, j) of JSON.parse(contexts[num].test_qns).options">
+                                <div v-for="(option, j) of JSON.parse(qn[1])[0].options">
                                     <input type="radio" :name=i :value=j v-model="testAnswers[i]">
                                     <label for="dict">[[option]]</label>
                                 </div>
@@ -184,33 +184,18 @@
     this.__workerId__ = loadValue('workerId') || '{{ workerId }}';
     this.__isTranslation__ = loadValue('isTranslation') || '{{ isTranslation }}';
     this.__test_type__ = loadValue('test_type') || '{{ test_type }}'
+    this.__currTests__ = loadValue('currTests') || {{currTests | tojson | safe }};
     this.__testAnswers__ = []
+    this.__testStartIndex__ = loadValue('testStartIndex') || '{{testStartIndex}}'
+    this.__language__ = loadValue('language') || '{{language}}'
     for (let i = 0; i < this.__contexts__.length * 2 - 5; i++) {this.__testAnswers__.push([])}
     saveValue('uid', this.__uid__);
     saveValue('contexts', this.__contexts__);
     saveValue('questions', this.__questions__);
+    saveValue('currTests', this.__currTests__);
+    console.log(this.__testStartIndex__)
+
     Vue.use(VueMarkdown);
-
-    function shuffle(array) {
-        var i = array.length,
-            j = 0,
-            temp;
-
-        while (i--) {
-
-            j = Math.floor(Math.random() * (i+1));
-
-            // swap randomly chosen element with current element
-            temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-
-        }
-
-        return array;
-    }
-    var qnNums = shuffle([0,1,2,3,4,5,6,7,8,9]);
-    qnNums.splice(5,5);
     
     var app = new Vue({
         el: '#test-view',
@@ -222,6 +207,7 @@
             workerId: this.__workerId__,
             test_type: this.__test_type__,
             validateTexts: this.__validate_texts__,
+            currTests: this.__currTests__,
             contextIndex: loadValue('contextIndex') || 0,
             response: loadValue('response') || {},
             // candidateIds: [],
@@ -233,7 +219,8 @@
             isHiddens: {},
             start_time: Date.now(),
             testAnswers: this.__testAnswers__,
-            qnNums: qnNums
+            testStartIndex: this.__testStartIndex__,
+            language: this.__language__,
         },
         created() {
             // this.candidateIds = this.shuffle(Object.keys(this.contexts[this.contextIndex].candidates));
@@ -437,10 +424,10 @@
                     testType: this.test_type,
                     validateTexts: this.validateTexts,
                     isTranslation: this.isTranslation,
+                    testStartIndex: this.testStartIndex,
+                    language: this.language,
                     // validatorValues: this.validatorValues
 
-                    //
-                    qnNums: this.qnNums,
                     //
                     
                 }).then(function(response) {

@@ -175,6 +175,7 @@
     this.__validate_texts__ = {{ validate_texts | tojson | safe }};
     this.__workerId__ = loadValue('workerId') || '{{ workerId }}';
     this.__isTranslation__ = loadValue('isTranslation') || '{{ isTranslation }}';
+    this.__language__ = loadValue('language') || '{{ language }}'
     saveValue('uid', this.__uid__);
     saveValue('contexts', this.__contexts__);
     saveValue('questions', this.__questions__);
@@ -197,7 +198,8 @@
             nerStartIndex: -1,
             nerEndIndex: -1,
             buttonColorMap: {'DAT': 'Salmon', 'EVT': 'Orange', 'FNB': 'Yellow', 'IND': 'GreenYellow', 'LOC': 'DarkKhaki', 'ORG': 'Aquamarine', 'PER': 'SkyBlue', 'QNT': 'Thistle', 'TIM': 'Silver', 'MISC': 'LightPink'},
-            entityMap: {'id': ['PER', 'LOC', 'IND', 'EVT', 'FNB'], 'ko': ['PER', 'LOC', 'ORG', 'DAT', 'TIM', 'QNT'], 'en': ['PER', 'LOC', 'ORG', 'MISC']}
+            entityMap: {'id': ['PER', 'LOC', 'IND', 'EVT', 'FNB'], 'ko': ['PER', 'LOC', 'ORG', 'DAT', 'TIM', 'QNT'], 'en': ['PER', 'LOC', 'ORG', 'MISC']},
+            language: this.__language__,
         },
         created() {
             this.validateIndex = Math.floor(Math.random() * 5);
@@ -328,7 +330,8 @@
                     workerId: this.workerId,
                     uid: this.uid,
                     context_dicts: this.contexts,
-                    questions: this.questions
+                    questions: this.questions,
+                    language: this.language,
                 }).then(function(response) {
                     document.open()
                     document.write(response.data);

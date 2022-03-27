@@ -164,12 +164,11 @@ def generate_user_id():
 #     with open(file_path, 'w', encoding='utf-8') as f:
 #         f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
-def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation, context, qnNums):
+def save_test(res_output_path, context_id, user_id, response, isPassed, workerId, start_time, end_time, test_type, translation, context, testStartIndex):
     if isPassed:
         file_path = '%s/%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
     else:
         file_path = '%s/no_pass__%s__res__%s__%s__%s.json' % (res_output_path, context_id, user_id, workerId, test_type)
-    qns = [x['test_qns'] for x in context]
     qns_generated = [x['test_qns_generated'] for x in context]
     data = {
         'context_id': context_id,
@@ -179,9 +178,8 @@ def save_test(res_output_path, context_id, user_id, response, isPassed, workerId
         'start_time': start_time,
         'end_time': end_time,
         'translation': translation,
-        'qns': qns,
         'qns_generated': qns_generated,
-        'qnNums': qnNums,
+        'testStartIndex': testStartIndex,
     }
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(json.dumps(data, ensure_ascii=False, indent=4))
@@ -207,7 +205,7 @@ def save_response(res_output_path, context_id, user_id, response, ground_truth, 
 
 
 def get_language_task_set():
-    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-instruction/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-final/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
     language_set = list(set(row[2] for row in json_url[1:]))
     task_set = list(set(row[0] for row in json_url[1:]))
     return sorted(language_set), sorted(task_set)
@@ -243,10 +241,26 @@ def task_test():
         workerId = data['workerId']
         isTranslation = data['isTranslation']
         uid = data['uid']
+        language = data['language']
         context_dicts = data['context_dicts']
         questions = data['questions']
         validate_texts = 'asssssss'
     
+    start_indices = {'en': 0, 'ko':240, 'id':360}
+    test_qn_list = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-final-test/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+
+    if test_type == 'pre':
+        file_list = [f for f in os.listdir('%s/pretest-output' %output_path) if os.path.isfile(os.path.join('%s/pretest-output' %output_path, f))]
+    else:
+        file_list = [f for f in os.listdir('%s/posttest-output' %output_path) if os.path.isfile(os.path.join('%s/posttest-output' %output_path, f))]
+    
+    session_count = 0
+    for f in file_list:
+        if workerId in f:
+            session_count += 1
+
+    curr_test_qns = test_qn_list[start_indices[language]+session_count*5:start_indices[language]+session_count*5 + 5]
+
     whitelist = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/whitelist/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values'][1:]
     whitelist = [whitelist[i][:4] for i in range(len(whitelist))]
     if test_type == 'pre' and [workerId.lower().replace(" ", ""), language, task, isTranslation] not in whitelist:
@@ -255,7 +269,8 @@ def task_test():
             language=language,
             task=task,
             isTranslation=isTranslation)
-
+    
+    print(curr_test_qns)
     return render_template('task_test.html',
         test_type=test_type,
         isTranslation=isTranslation,
@@ -263,7 +278,10 @@ def task_test():
         contexts=context_dicts,
         questions=questions,
         validate_texts=validate_texts,
-        workerId=workerId)
+        workerId=workerId,
+        currTests=curr_test_qns,
+        testStartIndex=start_indices[language]+session_count*5,
+        language=language)
 
 @app.route('/tasks/draw', methods=['POST'])
 def task_draw():
@@ -297,16 +315,17 @@ def test_submit():
     isTranslation = data['isTranslation']
     validate_texts = data['validateTexts']
     test_type = data['testType']
+    language = data['language']
 
     ''''''
-    qnNums  = data['qnNums']
+    testStartIndex  = data['testStartIndex']
     ''''''
 
     context_dict = context[0]
     r = response
     res_output_path = output_path + "/" + test_type + "test-output/" if r else output_path + "/" + test_type + "test-output/"
     # save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context)
-    save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context, qnNums)
+    save_test(res_output_path, context_dict['id'], user_id, r, isPassed, workerId, start_time, end_time, test_type, translation[context_dict['id']], context, testStartIndex)
     
     if test_type == 'pre':
         return render_template('task_draw.html',
@@ -315,7 +334,8 @@ def test_submit():
             contexts=context,
             questions=questions,
             validate_texts=validate_texts,
-            workerId=workerId)
+            workerId=workerId,
+            language=language,)
     else:
         return 'done:%s' % (secret_code + user_id)
 
