@@ -105,7 +105,7 @@ def draw_question_ids_over_limit():
 
 
 def draw_context_dicts(language_task_set, workerId):
-    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-instruction/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+    json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-final/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
     header = json_url[0]
     
     question_candidates = json_url[1:]
@@ -118,11 +118,9 @@ def draw_context_dicts(language_task_set, workerId):
 
     questions = [dict(zip(header, v)) for v in questions]
     for question in questions:
-        test_qns = json.loads(question['test_qns'])
         test_qns_generated = json.loads(question['test_qns_generated'])
         random_index = random.randint(0, len(test_qns_generated) - 1)
         question['test_qns_generated'] = json.dumps(test_qns_generated[random_index])
-        question['test_qns'] = json.dumps(test_qns[0])
 
     return questions
 
@@ -354,7 +352,7 @@ def task_submit():
 
     for context_dict in context:
         r = response[context_dict['id']] if context_dict['id'] in response else None
-        json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-instruction/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
+        json_url = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-final/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
         language_task_set = list(set((row[2], row[0]) for row in json_url[1:]))
         gt = [row[4] for row in json_url[1:] if row[3] == context_dict['id']]
         gt = gt[0] if gt else None
