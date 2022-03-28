@@ -113,13 +113,11 @@ def draw_context_dicts(language_task_set, workerId):
     questions_over_limit = draw_question_ids_over_limit()
     responses = [x.name.split('__res__')[0] for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json')) if workerId in x.name]
     question_candidates = [q for q in question_candidates if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set] and q[3] not in responses]
-    print(question_candidates)
     # questions = sum([random.sample([q for q in question_candidates if q[10] == str(i)], 2) for i in range(1, 6)], [])
     questions = []
     for i in range(1, 6):
         level_i_candidates = [q for q in question_candidates if q[10] == str(i)]
         questions += random.sample(level_i_candidates, 2) if len(level_i_candidates) >= 2 else []
-    print(questions)
     # questions = questions[:min(context_count_per_user, len(questions))]
 
     questions = [dict(zip(header, v)) for v in questions]
@@ -274,7 +272,6 @@ def task_test():
             task=task,
             isTranslation=isTranslation)
     
-    print(curr_test_qns)
     return render_template('task_test.html',
         test_type=test_type,
         isTranslation=isTranslation,
