@@ -251,10 +251,11 @@ def task_test():
     start_indices = {'en': 0, 'ko':240, 'id':360}
     test_qn_list = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/dataset-final-test/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values']
 
-    if test_type == 'pre':
-        file_list = [f for f in os.listdir('%s/pretest-output' %output_path) if os.path.isfile(os.path.join('%s/pretest-output' %output_path, f))]
-    else:
-        file_list = [f for f in os.listdir('%s/posttest-output' %output_path) if os.path.isfile(os.path.join('%s/posttest-output' %output_path, f))]
+    # if test_type == 'pre':
+    #     file_list = [f for f in os.listdir('%s/pretest-output' %output_path) if os.path.isfile(os.path.join('%s/pretest-output' %output_path, f))]
+    # else:
+    #     file_list = [f for f in os.listdir('%s/posttest-output' %output_path) if os.path.isfile(os.path.join('%s/posttest-output' %output_path, f))]
+    file_list = [f for f in os.listdir('%s/posttest-output' %output_path) if os.path.isfile(os.path.join('%s/posttest-output' %output_path, f))]
     
     session_count = 0
     for f in file_list:
