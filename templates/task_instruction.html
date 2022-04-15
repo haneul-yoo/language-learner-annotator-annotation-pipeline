@@ -88,7 +88,7 @@
         </div>
         <div class="v-padded">
             <p class="control">
-                <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true}">
+                <button class="button is-success" @click="submit" :class="{'button':true, 'is-success':true}" id="continue_btn">
                     Continue
                 </button>
             </p>
@@ -136,6 +136,9 @@
                     alert('You should select a translation option.');
                     return;
                 }
+                var btn = document.getElementById('continue_btn');
+                btn.disabled = true;
+                btn.innerText = 'Please wait ...'
                 axios.post('/tasks/test', {
                     test_type: 'pre',
                     language: this.language,
