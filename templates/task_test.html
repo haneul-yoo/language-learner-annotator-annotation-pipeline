@@ -86,7 +86,7 @@
             <div class="v-padded">
                 <div class="field is-grouped">
                     <p class="control">
-                        <button class="button is-success" @click="submit">
+                        <button class="button is-success" @click="submit" id="submit_btn">
                             Submit
                         </button>
                     </p>
@@ -195,6 +195,9 @@
                 isPassed = true;
                 test_type = this.test_type;
                 // resetValues = this.resetValues
+                var btn = document.getElementById('submit_btn');
+                btn.disabled = true;
+                btn.innerText = 'Please wait ...'
                 axios.post('/tasks/testSubmit', {
                     context: this.contexts,
                     response: this.testAnswers,
@@ -229,7 +232,7 @@
                             } else {
                                 window.location.href = '/tasks/done?code=pass_' + encodeURI(code);
                             }
-                            resetValues();
+                            // resetValues();
                         } else {
                             alert('Error from server on submit: ' + response);
                         }

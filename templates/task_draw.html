@@ -145,7 +145,7 @@
                             </button>
                         </p>
                         <p v-else-if="contextIndex === contexts.length - 1" class="control">
-                            <button class="button is-success" @click="submit">
+                            <button class="button is-success" @click="submit" id="submit_btn">
                                 Submit
                             </button>
                         </p>
@@ -323,7 +323,9 @@
                     alert('You have to answer to all questions.');
                     return;
                 }
-
+                var btn = document.getElementById('submit_btn');
+                btn.disabled = true;
+                btn.innerText = 'Please wait ...'
                 axios.post('/tasks/test', {
                     test_type: 'post',
                     isTranslation: this.isTranslation,
