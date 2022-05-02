@@ -16,7 +16,7 @@ data_path = './data'
 # output_path = '/Volumes/share/haneul/language_learner_annotation/ner_test'
 output_path = './output'
 context_count_per_user = 10
-user_count_per_context = 6
+user_count_per_context = 3
 secret_code = 'done_'
 
 
@@ -111,7 +111,7 @@ def draw_context_dicts(language_task_set, workerId):
     question_candidates = json_url[1:]
     random.shuffle(question_candidates)
     questions_over_limit = draw_question_ids_over_limit()
-    responses = [x.name.split('__res__')[0] for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json')) if workerId in x.name]
+    responses = [x.name.split('__res__')[0] for x in list(Path(output_path + '/annotation-output').glob('**/*__res__*.json')) if workerId.lower().replace(' ', '') in x.name.lower().replace(' ', '')]
     question_candidates = [q for q in question_candidates if q[3] not in questions_over_limit and [q[2], q[0]] in [language_task_set] and q[3] not in responses]
     # questions = sum([random.sample([q for q in question_candidates if q[10] == str(i)], 2) for i in range(1, 6)], [])
     questions = []
@@ -264,7 +264,7 @@ def task_test():
 
     curr_test_qns = test_qn_list[start_indices[language]+session_count*5:start_indices[language]+session_count*5 + 5]
 
-    whitelist = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/whitelist/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values'][1:]
+    whitelist = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1DPQnBmAQtJ0pCYGgD7dSmoN8EUKWU10eGUjPJ76B5TE/values/native-whitelist/?alt=json&key=AIzaSyAQRP6ZxaLICxsOCQowChrdDfghUASYzcs').json()['values'][1:]
     whitelist = [whitelist[i][:4] for i in range(len(whitelist))]
     if test_type == 'pre' and [workerId.lower().replace(" ", ""), language, task, isTranslation] not in whitelist:
         return render_template('task_whitelist.html',
